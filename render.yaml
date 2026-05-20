@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: medstudy
+    runtime: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_ORIGIN
+        value: "*"
+    # The free plan has an ephemeral filesystem, so the SQLite database resets
+    # on each restart/deploy and is re-seeded automatically with demo data.
+    # For durable storage, upgrade the plan and uncomment the disk below plus
+    # set DATABASE_PATH=/var/data/medstudy.db as an env var.
+    # disk:
+    #   name: data
+    #   mountPath: /var/data
+    #   sizeGB: 1

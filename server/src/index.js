@@ -3,10 +3,14 @@ import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import { existsSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 import db from './db.js';
 import { verifyToken } from './auth.js';
 import { awardPoints } from './points.js';
+import { seedDatabase } from './seed.js';
 
 import authRoutes from './routes/auth.js';
 import studyRoutes from './routes/study.js';
@@ -15,8 +19,14 @@ import milestoneRoutes from './routes/milestones.js';
 import questionRoutes from './routes/questions.js';
 import chatRoutes from './routes/chat.js';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 4000;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || '*';
+
+// On a fresh deploy the database is empty — populate it with demo content.
+if (db.prepare('SELECT COUNT(*) AS c FROM users').get().c === 0) {
+  seedDatabase();
+}
 
 const app = express();
 app.use(cors({ origin: CLIENT_ORIGIN }));
@@ -29,6 +39,17 @@ app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/milestones', milestoneRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/chat', chatRoutes);
+
+// In production, serve the built React app and let client-side routing handle
+// non-API paths. Skipped in dev (no build present — Vite serves the client).
+const clientDist = process.env.CLIENT_DIST || join(__dirname, '..', '..', 'client', 'dist');
+if (existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(join(clientDist, 'index.html'));
+  });
+}
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, { cors: { origin: CLIENT_ORIGIN } });

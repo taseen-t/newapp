@@ -1,10 +1,12 @@
 import bcrypt from 'bcryptjs';
+import { pathToFileURL } from 'url';
 import db from './db.js';
 
-console.log('Seeding MedStudy database...');
+export function seedDatabase() {
+  console.log('Seeding MedStudy database...');
 
-// Reset content tables (keep nothing — fresh demo data).
-db.exec(`
+  // Reset content tables (keep nothing — fresh demo data).
+  db.exec(`
   DELETE FROM user_milestones;
   DELETE FROM milestones;
   DELETE FROM answers;
@@ -124,8 +126,14 @@ const milestones = [
   ['helper', 'Helping Hand', 'Post 5 answers', 'hands', 5, 'answers'],
   ['mentor', 'Mentor', 'Post 20 answers', 'hands', 20, 'answers'],
 ];
-for (const m of milestones) insMilestone.run(...m);
+  for (const m of milestones) insMilestone.run(...m);
 
-console.log('Seed complete.');
-console.log('Demo logins (password: password123): drsarah, mike_md, anatomy_ace, pharma_pia, nina_neuro');
-db.close();
+  console.log('Seed complete.');
+}
+
+// Run directly (CLI): `npm run seed`
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  seedDatabase();
+  console.log('Demo logins (password: password123): drsarah, mike_md, anatomy_ace, pharma_pia, nina_neuro');
+  db.close();
+}
