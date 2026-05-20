@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { io } from 'socket.io-client';
-import { api, getToken } from '../api.js';
+import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Card, Avatar, Spinner } from '../components/ui.jsx';
+
+const POLL_MS = 3000;
 
 export default function Chat() {
   const { user } = useAuth();
@@ -11,26 +12,12 @@ export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(true);
-  const socketRef = useRef(null);
+  const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
-
-  // Connect socket once.
-  useEffect(() => {
-    const socket = io('/', { auth: { token: getToken() } });
-    socketRef.current = socket;
-    socket.on('message:new', (msg) => {
-      setMessages((prev) => (msg.room_id === activeRoomRef.current ? [...prev, msg] : prev));
-    });
-    return () => socket.disconnect();
-  }, []);
-
-  // Keep a ref of the active room for the socket listener.
+  const lastIdRef = useRef(0);
   const activeRoomRef = useRef(null);
-  useEffect(() => {
-    activeRoomRef.current = activeRoom;
-  }, [activeRoom]);
 
-  // Load rooms.
+  // Load rooms once.
   useEffect(() => {
     api.rooms().then(({ rooms }) => {
       setRooms(rooms);
@@ -39,24 +26,54 @@ export default function Chat() {
     });
   }, []);
 
+  // Poll the active room for new messages.
+  useEffect(() => {
+    if (!activeRoom) return;
+    const tick = async () => {
+      try {
+        const { messages: fresh } = await api.roomMessages(activeRoom, lastIdRef.current);
+        if (fresh.length && activeRoomRef.current === activeRoom) {
+          lastIdRef.current = fresh[fresh.length - 1].id;
+          setMessages((prev) => [...prev, ...fresh]);
+        }
+      } catch {
+        /* ignore transient poll errors */
+      }
+    };
+    const timer = setInterval(tick, POLL_MS);
+    return () => clearInterval(timer);
+  }, [activeRoom]);
+
   const selectRoom = async (roomId) => {
     setActiveRoom(roomId);
     activeRoomRef.current = roomId;
-    socketRef.current?.emit('room:join', roomId);
+    lastIdRef.current = 0;
     const { messages } = await api.roomMessages(roomId);
     setMessages(messages);
+    lastIdRef.current = messages.length ? messages[messages.length - 1].id : 0;
   };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const send = (e) => {
+  const send = async (e) => {
     e.preventDefault();
     const content = text.trim();
-    if (!content || !activeRoom) return;
-    socketRef.current.emit('message:send', { roomId: activeRoom, content });
+    if (!content || !activeRoom || sending) return;
+    setSending(true);
     setText('');
+    try {
+      const { message } = await api.sendMessage(activeRoom, content);
+      if (activeRoomRef.current === activeRoom) {
+        lastIdRef.current = message.id;
+        setMessages((prev) => [...prev, message]);
+      }
+    } catch {
+      setText(content); // restore on failure
+    } finally {
+      setSending(false);
+    }
   };
 
   if (loading) return <Spinner />;
@@ -67,7 +84,7 @@ export default function Chat() {
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-bold">Community</h1>
-        <p className="text-slate-500">Chat live with other students. Be kind, stay curious.</p>
+        <p className="text-slate-500">Chat with other students. Be kind, stay curious.</p>
       </div>
 
       <div className="grid grid-cols-[200px_1fr] gap-4 h-[calc(100vh-220px)]">
@@ -95,9 +112,7 @@ export default function Chat() {
 
           <div className="flex-1 overflow-y-auto scroll-thin p-5 space-y-4">
             {messages.length === 0 && (
-              <p className="text-center text-slate-400 text-sm py-10">
-                No messages yet. Say hello! 👋
-              </p>
+              <p className="text-center text-slate-400 text-sm py-10">No messages yet. Say hello! 👋</p>
             )}
             {messages.map((m) => {
               const mine = m.user_id === user.id;
@@ -105,7 +120,10 @@ export default function Chat() {
                 <div key={m.id} className={`flex gap-3 ${mine ? 'flex-row-reverse' : ''}`}>
                   <Avatar name={m.username} color={m.avatar} size={32} />
                   <div className={`max-w-[70%] ${mine ? 'text-right' : ''}`}>
-                    <div className="flex items-center gap-2 mb-0.5" style={mine ? { flexDirection: 'row-reverse' } : {}}>
+                    <div
+                      className="flex items-center gap-2 mb-0.5"
+                      style={mine ? { flexDirection: 'row-reverse' } : {}}
+                    >
                       <span className="text-xs font-semibold">{mine ? 'You' : m.username}</span>
                       <span className="text-[10px] text-slate-400">
                         {new Date(m.created_at + 'Z').toLocaleTimeString([], {
@@ -137,7 +155,8 @@ export default function Chat() {
             />
             <button
               type="submit"
-              className="px-5 rounded-xl bg-brand-600 text-white font-medium text-sm hover:bg-brand-700 transition"
+              disabled={sending}
+              className="px-5 rounded-xl bg-brand-600 text-white font-medium text-sm hover:bg-brand-700 transition disabled:opacity-50"
             >
               Send
             </button>

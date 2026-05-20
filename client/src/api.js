@@ -46,7 +46,10 @@ export const api = {
 
   // chat
   rooms: () => request('/chat/rooms', { auth: false }),
-  roomMessages: (id) => request(`/chat/rooms/${id}/messages`, { auth: false }),
+  roomMessages: (id, after = 0) =>
+    request(`/chat/rooms/${id}/messages${after ? `?after=${after}` : ''}`, { auth: false }),
+  sendMessage: (id, content) =>
+    request(`/chat/rooms/${id}/messages`, { method: 'POST', body: { content } }),
 };
 
 export { getToken };

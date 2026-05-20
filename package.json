@@ -1,14 +1,21 @@
 {
   "name": "medstudy",
   "version": "1.0.0",
-  "description": "MedStudy — medical study community (React + Vite client, Express + Socket.io + node:sqlite server)",
+  "description": "MedStudy — medical study community (React + Vite client, Express + libSQL serverless API)",
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.5"
+    "node": "22.x"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2"
   },
   "scripts": {
-    "build": "npm install --prefix server && npm install --prefix client && npm run build --prefix client",
+    "build": "npm install --prefix client && npm run build --prefix client",
     "start": "npm start --prefix server",
     "seed": "npm run seed --prefix server",
     "dev:server": "npm start --prefix server",

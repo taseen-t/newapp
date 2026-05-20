@@ -1,16 +1,36 @@
-import { DatabaseSync } from 'node:sqlite';
-import { fileURLToPath } from 'url';
+import { createClient } from '@libsql/client';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname, join } from 'path';
-import { mkdirSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const dbPath = process.env.DATABASE_PATH || join(__dirname, '..', 'medstudy.db');
-mkdirSync(dirname(dbPath), { recursive: true });
-const db = new DatabaseSync(dbPath);
-db.exec('PRAGMA journal_mode = WAL');
-db.exec('PRAGMA foreign_keys = ON');
 
-db.exec(`
+// Local dev uses a file-based libSQL database; production uses Turso
+// (set DATABASE_URL=libsql://... and DATABASE_AUTH_TOKEN in the environment).
+const url = process.env.DATABASE_URL || pathToFileURL(join(__dirname, '..', 'medstudy.db')).href;
+const authToken = process.env.DATABASE_AUTH_TOKEN;
+
+export const client = createClient(authToken ? { url, authToken } : { url });
+
+// Convenience helpers mirroring the previous synchronous API, but async.
+export async function get(sql, args = []) {
+  const rs = await client.execute({ sql, args });
+  return rs.rows[0] ?? null;
+}
+
+export async function all(sql, args = []) {
+  const rs = await client.execute({ sql, args });
+  return rs.rows;
+}
+
+export async function run(sql, args = []) {
+  const rs = await client.execute({ sql, args });
+  return {
+    lastInsertRowid: rs.lastInsertRowid != null ? Number(rs.lastInsertRowid) : null,
+    changes: Number(rs.rowsAffected ?? 0),
+  };
+}
+
+const schema = `
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
@@ -107,6 +127,7 @@ db.exec(`
     achieved_at TEXT NOT NULL DEFAULT (datetime('now')),
     PRIMARY KEY (user_id, milestone_id)
   );
-`);
+`;
 
-export default db;
+// Ensure tables exist (idempotent). Top-level await runs once per cold start.
+await client.executeMultiple(schema);
