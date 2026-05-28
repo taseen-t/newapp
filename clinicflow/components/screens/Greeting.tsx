@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion";
 import { Bell } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 
 export function Greeting() {
+  const { toast } = useToast();
   const now = new Date();
   const hour = now.getHours();
   const greeting =
@@ -33,6 +35,9 @@ export function Greeting() {
       </motion.div>
       <button
         aria-label="Notifications"
+        onClick={() =>
+          toast("1 new follow-up overdue — head to the Follow-ups tab.")
+        }
         className="relative mt-1 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-foreground/70 transition-colors hover:bg-muted"
       >
         <Bell className="h-[17px] w-[17px]" strokeWidth={2} />

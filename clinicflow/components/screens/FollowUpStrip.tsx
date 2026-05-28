@@ -1,14 +1,21 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { MessageCircle, AlertCircle } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
+import { useToast } from "@/components/ui/toast";
 import { followUps } from "@/lib/mock-data";
+import { followUpMessage, openExternal, whatsappUrl } from "@/lib/contact";
 
 export function FollowUpStrip() {
+  const { toast } = useToast();
   const due = followUps.filter((f) => f.status === "due").slice(0, 3);
   const missed = followUps.find((f) => f.status === "missed");
+
+  function send(f: typeof followUps[number]) {
+    openExternal(whatsappUrl(f.phone, followUpMessage(f.patientName, f.tag, f.due)));
+    toast(`WhatsApp opened for ${f.patientName}`, "success");
+  }
 
   return (
     <div className="no-scrollbar mt-3 flex gap-3 overflow-x-auto px-5">
@@ -36,13 +43,13 @@ export function FollowUpStrip() {
               </span>
             </div>
           </div>
-          <Link
-            href="/follow-ups"
+          <button
+            onClick={() => send(missed)}
             className="flex items-center justify-center gap-1.5 rounded-xl bg-whatsapp px-3 py-1.5 text-[11.5px] font-semibold text-white shadow-soft transition-all hover:brightness-105"
           >
             <MessageCircle className="h-3 w-3" strokeWidth={2.5} />
             Send WhatsApp
-          </Link>
+          </button>
         </motion.div>
       )}
 
@@ -68,13 +75,13 @@ export function FollowUpStrip() {
               </span>
             </div>
           </div>
-          <Link
-            href="/follow-ups"
+          <button
+            onClick={() => send(f)}
             className="flex items-center justify-center gap-1.5 rounded-xl bg-whatsapp-soft px-3 py-1.5 text-[11.5px] font-semibold text-emerald-700 transition-all hover:bg-whatsapp hover:text-white"
           >
             <MessageCircle className="h-3 w-3" strokeWidth={2.5} />
             Remind
-          </Link>
+          </button>
         </motion.div>
       ))}
     </div>

@@ -2,9 +2,11 @@
 
 import { motion } from "framer-motion";
 import { Clock3, Sparkles, CheckCircle2, MoreHorizontal } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 import { patients } from "@/lib/mock-data";
 
 export function StatusBreakdown() {
+  const { toast } = useToast();
   const total = patients.length;
   const counts = {
     waiting: patients.filter((p) => p.status === "waiting").length,
@@ -55,6 +57,7 @@ export function StatusBreakdown() {
         </div>
         <button
           aria-label="More"
+          onClick={() => toast("Refresh, export, hide — coming next sprint.")}
           className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted"
         >
           <MoreHorizontal className="h-4 w-4" />

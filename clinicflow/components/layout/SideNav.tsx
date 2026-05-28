@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { clinic } from "@/lib/mock-data";
+import { useToast } from "@/components/ui/toast";
 
 const clinicGroup = [
   { href: "/", label: "Today", icon: Home, badge: "7" },
@@ -39,6 +40,7 @@ const settingsGroup = [{ href: "#", label: "Configuration", icon: Settings }];
 
 export function SideNav() {
   const pathname = usePathname();
+  const { toast } = useToast();
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
@@ -70,13 +72,18 @@ export function SideNav() {
           <Plus className="h-3.5 w-3.5" strokeWidth={3} />
           Add patient
         </Link>
-        <div className="mt-2 flex h-9 items-center gap-2 rounded-[10px] border border-border bg-muted/50 px-2.5 text-[12.5px] text-muted-foreground transition-colors hover:bg-muted">
+        <button
+          onClick={() =>
+            toast("Search coming up — global ⌘K search is on the roadmap.")
+          }
+          className="mt-2 flex h-9 w-full items-center gap-2 rounded-[10px] border border-border bg-muted/50 px-2.5 text-[12.5px] text-muted-foreground transition-colors hover:bg-muted"
+        >
           <Search className="h-3.5 w-3.5" />
-          <span className="flex-1">Search anything…</span>
+          <span className="flex-1 text-left">Search anything…</span>
           <kbd className="rounded border border-border bg-white px-1 py-0 text-[10px] font-medium text-muted-foreground">
             ⌘K
           </kbd>
-        </div>
+        </button>
       </div>
 
       {/* Nav groups */}
@@ -97,6 +104,11 @@ export function SideNav() {
               key={it.label}
               {...it}
               active={isActive(it.href)}
+              onComingSoon={
+                it.href === "#"
+                  ? () => toast(`${it.label} module coming next sprint.`)
+                  : undefined
+              }
             />
           ))}
         </NavGroup>
@@ -107,6 +119,11 @@ export function SideNav() {
               key={it.label}
               {...it}
               active={isActive(it.href)}
+              onComingSoon={
+                it.href === "#"
+                  ? () => toast(`${it.label} module coming next sprint.`)
+                  : undefined
+              }
             />
           ))}
         </NavGroup>
@@ -130,7 +147,12 @@ export function SideNav() {
 
       {/* Profile */}
       <div className="border-t border-border p-3 mt-3">
-        <button className="flex w-full items-center gap-2.5 rounded-[10px] p-1.5 text-left transition-colors hover:bg-muted">
+        <button
+          onClick={() =>
+            toast("Demo mode — sign-out is disabled on the public preview.")
+          }
+          className="flex w-full items-center gap-2.5 rounded-[10px] p-1.5 text-left transition-colors hover:bg-muted"
+        >
           <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-primary-soft text-[11.5px] font-semibold text-primary">
             IK
           </div>
@@ -173,6 +195,7 @@ function NavItem({
   badge,
   badgeTone,
   active,
+  onComingSoon,
 }: {
   href: string;
   label: string;
@@ -180,17 +203,17 @@ function NavItem({
   badge?: string;
   badgeTone?: "danger";
   active: boolean;
+  onComingSoon?: () => void;
 }) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "group relative flex h-9 items-center gap-2.5 rounded-[10px] px-3 text-[13px] font-medium transition-colors",
-        active
-          ? "bg-primary-soft text-primary"
-          : "text-foreground/70 hover:bg-muted hover:text-foreground",
-      )}
-    >
+  const className = cn(
+    "group relative flex h-9 items-center gap-2.5 rounded-[10px] px-3 text-[13px] font-medium transition-colors",
+    active
+      ? "bg-primary-soft text-primary"
+      : "text-foreground/70 hover:bg-muted hover:text-foreground",
+  );
+
+  const inner = (
+    <>
       <Icon
         className={cn(
           "h-[16px] w-[16px] shrink-0",
@@ -213,6 +236,20 @@ function NavItem({
           {badge}
         </span>
       )}
+    </>
+  );
+
+  if (onComingSoon) {
+    return (
+      <button onClick={onComingSoon} className={cn(className, "w-full text-left")}>
+        {inner}
+      </button>
+    );
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {inner}
     </Link>
   );
 }

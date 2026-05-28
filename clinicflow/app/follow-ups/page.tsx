@@ -15,7 +15,13 @@ import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Avatar } from "@/components/ui/avatar";
+import { useToast } from "@/components/ui/toast";
 import { followUps, type DiagnosisTag } from "@/lib/mock-data";
+import {
+  followUpMessage,
+  openExternal,
+  whatsappUrl,
+} from "@/lib/contact";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -34,6 +40,7 @@ const TAG_FILTERS: DiagnosisTag[] = [
 ];
 
 export default function FollowUpsPage() {
+  const { toast } = useToast();
   const [tab, setTab] = useState<(typeof TABS)[number]["key"]>("due");
   const [activeTag, setActiveTag] = useState<DiagnosisTag | null>(null);
   const [sent, setSent] = useState<Set<string>>(new Set());
@@ -41,6 +48,33 @@ export default function FollowUpsPage() {
   const list = followUps.filter(
     (f) => f.status === tab && (!activeTag || f.tag === activeTag),
   );
+
+  function sendReminder(f: (typeof followUps)[number]) {
+    const msg = followUpMessage(f.patientName, f.tag, f.due);
+    openExternal(whatsappUrl(f.phone, msg));
+    setSent((s) => new Set(s).add(f.id));
+    toast(`WhatsApp opened for ${f.patientName}`, "success");
+  }
+
+  function sendAll() {
+    const due = followUps.filter((x) => x.status === "due");
+    if (due.length === 0) {
+      toast("No reminders to send right now.");
+      return;
+    }
+    // Open the first patient's WhatsApp; the rest can be sent one tap each.
+    const first = due[0];
+    sendReminder(first);
+    if (due.length > 1) {
+      toast(
+        `Opened ${first.patientName}. Send ${due.length - 1} more below.`,
+      );
+    }
+  }
+
+  function reschedule(name: string) {
+    toast(`Reschedule for ${name} — picker coming next sprint.`);
+  }
 
   return (
     <AppShell>
@@ -50,6 +84,7 @@ export default function FollowUpsPage() {
         action={
           <button
             aria-label="Filter"
+            onClick={() => toast("Filter panel coming next sprint.")}
             className="flex h-10 w-10 items-center justify-center rounded-full text-foreground/70 transition-colors hover:bg-muted"
           >
             <Filter className="h-[18px] w-[18px]" />
@@ -111,7 +146,10 @@ export default function FollowUpsPage() {
               <MessageCircle className="h-6 w-6" strokeWidth={2.2} />
             </div>
           </div>
-          <button className="relative mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-whatsapp py-3.5 text-[14px] font-semibold text-white shadow-soft transition-all hover:brightness-110 active:scale-[0.98]">
+          <button
+            onClick={sendAll}
+            className="relative mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-whatsapp py-3.5 text-[14px] font-semibold text-white shadow-soft transition-all hover:brightness-110 active:scale-[0.98]"
+          >
             <MessageCircle className="h-4 w-4" strokeWidth={2.4} />
             Send all on WhatsApp
           </button>
@@ -261,9 +299,7 @@ export default function FollowUpsPage() {
 
                   <div className="grid grid-cols-[1fr_auto] gap-2">
                     <button
-                      onClick={() => {
-                        setSent((s) => new Set(s).add(f.id));
-                      }}
+                      onClick={() => sendReminder(f)}
                       disabled={isSent}
                       className={cn(
                         "flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-semibold transition-all",
@@ -284,7 +320,10 @@ export default function FollowUpsPage() {
                         </>
                       )}
                     </button>
-                    <button className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-white px-3 py-2.5 text-[12px] font-medium text-foreground/70 transition-colors hover:bg-muted">
+                    <button
+                      onClick={() => reschedule(f.patientName)}
+                      className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-white px-3 py-2.5 text-[12px] font-medium text-foreground/70 transition-colors hover:bg-muted"
+                    >
                       <CalendarClock className="h-3.5 w-3.5" strokeWidth={2.2} />
                       Reschedule
                     </button>

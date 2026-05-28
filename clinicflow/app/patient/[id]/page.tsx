@@ -18,6 +18,9 @@ import { TopBar } from "@/components/layout/TopBar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/components/ui/toast";
+import { openExternal, telUrl, whatsappUrl } from "@/lib/contact";
+import { clinic } from "@/lib/mock-data";
 import { SectionHeader } from "@/components/ui/section";
 import { getPatient, getVisitsForPatient } from "@/lib/mock-data";
 import { relativeDay } from "@/lib/utils";
@@ -29,10 +32,22 @@ export default function PatientProfilePage({
 }) {
   const patient = getPatient(params.id) ?? getPatient("p3")!;
   const visits = getVisitsForPatient(patient.id);
+  const { toast } = useToast();
 
   const diagnoses = Array.from(
     new Set(visits.flatMap((v) => v.diagnoses)),
   );
+
+  function openWhatsApp() {
+    const first = patient.name.split(" ")[0];
+    const message = `Assalam-o-Alaikum ${first}, this is from ${clinic.clinicName}. Following up on your recent visit — please let me know how you're feeling. — ${clinic.doctorName}`;
+    openExternal(whatsappUrl(patient.phone, message));
+    toast(`WhatsApp opened for ${patient.name}`, "success");
+  }
+
+  function scheduleFollowUp() {
+    toast(`Follow-up reminder queued for ${patient.name}.`, "success");
+  }
 
   return (
     <AppShell>
@@ -99,17 +114,23 @@ export default function PatientProfilePage({
 
           <div className="mt-4 grid grid-cols-3 gap-2">
             <a
-              href={`tel:${patient.phone.replace(/\s/g, "")}`}
+              href={telUrl(patient.phone)}
               className="flex flex-col items-center gap-1 rounded-2xl bg-white py-3 shadow-soft transition-all hover:shadow-card active:scale-[0.98]"
             >
               <Phone className="h-4 w-4 text-foreground/70" strokeWidth={2.2} />
               <span className="text-[11px] font-medium">Call</span>
             </a>
-            <button className="flex flex-col items-center gap-1 rounded-2xl bg-whatsapp py-3 text-white shadow-soft transition-all hover:brightness-110 active:scale-[0.98]">
+            <button
+              onClick={openWhatsApp}
+              className="flex flex-col items-center gap-1 rounded-2xl bg-whatsapp py-3 text-white shadow-soft transition-all hover:brightness-110 active:scale-[0.98]"
+            >
               <MessageCircle className="h-4 w-4" strokeWidth={2.2} />
               <span className="text-[11px] font-medium">WhatsApp</span>
             </button>
-            <button className="flex flex-col items-center gap-1 rounded-2xl bg-white py-3 shadow-soft transition-all hover:shadow-card active:scale-[0.98]">
+            <button
+              onClick={scheduleFollowUp}
+              className="flex flex-col items-center gap-1 rounded-2xl bg-white py-3 shadow-soft transition-all hover:shadow-card active:scale-[0.98]"
+            >
               <CalendarPlus
                 className="h-4 w-4 text-foreground/70"
                 strokeWidth={2.2}
@@ -159,7 +180,10 @@ export default function PatientProfilePage({
             title="Prescriptions"
             description={`${visits.length} captured`}
             action={
-              <button className="text-[12px] font-medium text-primary">
+              <button
+                onClick={() => toast("Full prescription gallery coming next sprint.")}
+                className="text-[12px] font-medium text-primary"
+              >
                 View all
               </button>
             }
@@ -190,7 +214,10 @@ export default function PatientProfilePage({
                 </div>
               </motion.div>
             ))}
-            <button className="flex h-32 w-24 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-border bg-muted/30 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary">
+            <button
+              onClick={() => toast("Full prescription gallery coming next sprint.")}
+              className="flex h-32 w-24 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-border bg-muted/30 text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+            >
               <Pill className="h-4 w-4" strokeWidth={2} />
               <span className="text-[10px] font-medium">View all</span>
             </button>
@@ -211,12 +238,13 @@ export default function PatientProfilePage({
             ].map((a, i) => {
               const Icon = a.icon;
               return (
-                <motion.div
+                <motion.button
                   key={a.name}
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: i * 0.05 }}
-                  className="flex items-center gap-3 rounded-2xl border border-border/70 bg-white p-3 shadow-soft transition-all hover:border-primary/20"
+                  onClick={() => toast(`${a.name} viewer coming next sprint.`)}
+                  className="flex w-full items-center gap-3 rounded-2xl border border-border/70 bg-white p-3 text-left shadow-soft transition-all hover:border-primary/20"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent">
                     <Icon className="h-4 w-4" strokeWidth={2.2} />
@@ -230,7 +258,7 @@ export default function PatientProfilePage({
                     </span>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground/60" />
-                </motion.div>
+                </motion.button>
               );
             })}
           </div>

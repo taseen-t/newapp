@@ -7,10 +7,12 @@ import { ArrowRight, User2, Phone, Cake, UserRound } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
 import { Field, Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
 export default function AddPatientPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [age, setAge] = useState("");
@@ -38,6 +40,7 @@ export default function AddPatientPage() {
         onSubmit={(e) => {
           e.preventDefault();
           if (!ready) return;
+          toast(`${name.trim()} registered. Starting visit.`, "success");
           router.push("/visit/p3");
         }}
         className="flex h-[calc(100dvh-56px)] flex-col lg:h-auto lg:rounded-3xl lg:border lg:border-border/70 lg:bg-white lg:shadow-card"

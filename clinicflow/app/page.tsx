@@ -1,3 +1,6 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   CalendarPlus,
@@ -8,6 +11,7 @@ import {
   Bell,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
+import { useToast } from "@/components/ui/toast";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Greeting } from "@/components/screens/Greeting";
 import { SearchBar } from "@/components/screens/SearchBar";
@@ -21,6 +25,8 @@ import { AddPatientFab } from "@/components/screens/AddPatientFab";
 import { patients, followUps, todayStats, clinic } from "@/lib/mock-data";
 
 export default function HomePage() {
+  const { toast } = useToast();
+  const [query, setQuery] = useState("");
   const dueFollowUps = followUps.filter((f) => f.status !== "scheduled");
   const dateLabel = new Date().toLocaleDateString("en-PK", {
     weekday: "long",
@@ -29,13 +35,22 @@ export default function HomePage() {
     year: "numeric",
   });
 
+  const filteredPatients = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return patients;
+    return patients.filter((p) =>
+      [p.name, p.phone, p.reason ?? ""]
+        .some((field) => field.toLowerCase().includes(q)),
+    );
+  }, [query]);
+
   return (
     <AppShell>
       {/* ============ MOBILE ============ */}
       <div className="relative lg:hidden">
         <div className="absolute inset-x-0 top-0 h-72 -z-10 gradient-mesh" />
         <Greeting />
-        <SearchBar />
+        <SearchBar value={query} onChange={setQuery} />
         <StatsRow />
 
         <div className="mt-7 flex flex-col gap-3">
@@ -56,10 +71,18 @@ export default function HomePage() {
               <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
-          <div className="flex flex-col gap-2 px-5">
-            {patients.map((p, i) => (
-              <PatientQueueCard key={p.id} patient={p} index={i} />
-            ))}
+          <div className="flex flex-col gap-3 px-5">
+            {filteredPatients.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border py-8 text-center">
+                <p className="text-[13px] text-muted-foreground">
+                  No patients match "<span className="font-medium text-foreground">{query}</span>"
+                </p>
+              </div>
+            ) : (
+              filteredPatients.map((p) => (
+                <PatientQueueCard key={p.id} patient={p} />
+              ))
+            )}
           </div>
         </div>
 
@@ -95,19 +118,32 @@ export default function HomePage() {
             <span className="font-medium text-foreground">Today</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-72 items-center gap-2 rounded-lg border border-border bg-white px-3 text-[12.5px] text-muted-foreground">
+            <button
+              onClick={() =>
+                toast("Search coming up — global ⌘K search is on the roadmap.")
+              }
+              className="flex h-9 w-72 items-center gap-2 rounded-lg border border-border bg-white px-3 text-[12.5px] text-muted-foreground transition-colors hover:bg-muted"
+            >
               <Search className="h-3.5 w-3.5" />
-              <span className="flex-1">Search anything</span>
+              <span className="flex-1 text-left">Search anything</span>
               <kbd className="rounded border border-border bg-muted/50 px-1 text-[10px]">
                 ⌘K
               </kbd>
-            </div>
-            <button className="flex h-9 items-center gap-1.5 rounded-lg border border-border bg-white px-3 text-[12.5px] font-medium text-foreground transition-colors hover:bg-muted">
+            </button>
+            <button
+              onClick={() =>
+                toast(`Only ${clinic.city} clinic is connected on this plan.`)
+              }
+              className="flex h-9 items-center gap-1.5 rounded-lg border border-border bg-white px-3 text-[12.5px] font-medium text-foreground transition-colors hover:bg-muted"
+            >
               <span>{clinic.city}</span>
               <ChevronRight className="h-3 w-3 rotate-90 text-muted-foreground" />
             </button>
             <button
               aria-label="Notifications"
+              onClick={() =>
+                toast("1 new follow-up overdue — head to the Follow-ups tab.")
+              }
               className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-white text-foreground/70 transition-colors hover:bg-muted"
             >
               <Bell className="h-3.5 w-3.5" />
@@ -127,7 +163,10 @@ export default function HomePage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex h-10 items-center gap-2 rounded-lg border border-border bg-white px-3.5 text-[12.5px] font-medium text-foreground transition-colors hover:bg-muted">
+            <button
+              onClick={() => toast("Date range picker coming next sprint.")}
+              className="flex h-10 items-center gap-2 rounded-lg border border-border bg-white px-3.5 text-[12.5px] font-medium text-foreground transition-colors hover:bg-muted"
+            >
               <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
               {dateLabel}
             </button>
@@ -201,9 +240,9 @@ export default function HomePage() {
                 <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
-            <div className="-mx-2 flex flex-col">
-              {patients.map((p, i) => (
-                <PatientQueueCard key={p.id} patient={p} index={i} />
+            <div className="flex flex-col gap-2.5">
+              {patients.map((p) => (
+                <PatientQueueCard key={p.id} patient={p} />
               ))}
             </div>
           </section>

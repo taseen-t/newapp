@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, MoreHorizontal } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
 interface TopBarProps {
@@ -23,6 +23,7 @@ export function TopBar({
   className,
 }: TopBarProps) {
   const router = useRouter();
+  const { toast } = useToast();
 
   return (
     <div
@@ -55,6 +56,7 @@ export function TopBar({
         {action ?? (
           <button
             aria-label="More"
+            onClick={() => toast("More actions coming next sprint.")}
             className="flex h-10 w-10 items-center justify-center rounded-full text-foreground/70 transition-colors hover:bg-muted"
           >
             <MoreHorizontal className="h-5 w-5" />

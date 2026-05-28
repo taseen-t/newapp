@@ -22,6 +22,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
 import { Avatar } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/input";
+import { useToast } from "@/components/ui/toast";
 import { getPatient } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +41,7 @@ export default function ActiveVisitPage({
   params: { id: string };
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const patient = getPatient(params.id) ?? getPatient("p3")!;
 
   const [notes, setNotes] = useState("");
@@ -410,7 +412,10 @@ export default function ActiveVisitPage({
       <div className="sticky bottom-0 border-t border-border/60 bg-white/90 px-5 py-4 backdrop-blur-md lg:static lg:mt-6 lg:flex lg:justify-end lg:border-t-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
         <motion.button
           whileTap={{ scale: 0.98 }}
-          onClick={() => router.push(`/patient/${patient.id}`)}
+          onClick={() => {
+            toast(`Visit saved for ${patient.name}.`, "success");
+            router.push(`/patient/${patient.id}`);
+          }}
           className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-foreground text-[15px] font-semibold text-white shadow-float transition-all hover:brightness-110 lg:h-12 lg:w-auto lg:px-6"
         >
           <Check className="h-4 w-4" strokeWidth={2.6} />
