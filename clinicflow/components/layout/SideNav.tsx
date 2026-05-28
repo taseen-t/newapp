@@ -18,6 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { clinic } from "@/lib/mock-data";
 import { useToast } from "@/components/ui/toast";
+import { signOut } from "@/app/actions/auth";
 
 const clinicGroup = [
   { href: "/", label: "Today", icon: Home, badge: "7" },
@@ -148,9 +149,8 @@ export function SideNav() {
       {/* Profile */}
       <div className="border-t border-border p-3 mt-3">
         <button
-          onClick={() =>
-            toast("Demo mode — sign-out is disabled on the public preview.")
-          }
+          onClick={() => signOut()}
+          title="Sign out"
           className="flex w-full items-center gap-2.5 rounded-[10px] p-1.5 text-left transition-colors hover:bg-muted"
         >
           <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-primary-soft text-[11.5px] font-semibold text-primary">
