@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Home,
-  CalendarClock,
   BellRing,
   Users,
   Settings,
@@ -16,32 +15,37 @@ import {
   Stethoscope,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { clinic } from "@/lib/mock-data";
+import { useClinic } from "@/components/providers/ClinicProvider";
 import { useToast } from "@/components/ui/toast";
 import { signOut } from "@/app/actions/auth";
-
-const clinicGroup = [
-  { href: "/", label: "Today", icon: Home, badge: "7" },
-  {
-    href: "/follow-ups",
-    label: "Follow-ups",
-    icon: BellRing,
-    badge: "3",
-    badgeTone: "danger" as const,
-  },
-  { href: "/visit/p3", label: "Schedule", icon: CalendarClock },
-];
-
-const patientsGroup = [
-  { href: "/patient/p3", label: "Patients", icon: Users },
-  { href: "#", label: "Vitals", icon: Activity },
-];
-
-const settingsGroup = [{ href: "#", label: "Configuration", icon: Settings }];
 
 export function SideNav() {
   const pathname = usePathname();
   const { toast } = useToast();
+  const clinic = useClinic();
+
+  const clinicGroup = [
+    {
+      href: "/",
+      label: "Today",
+      icon: Home,
+      badge: clinic.queueCount > 0 ? String(clinic.queueCount) : undefined,
+    },
+    {
+      href: "/follow-ups",
+      label: "Follow-ups",
+      icon: BellRing,
+      badge: clinic.pendingCount > 0 ? String(clinic.pendingCount) : undefined,
+      badgeTone: "danger" as const,
+    },
+  ];
+
+  const patientsGroup = [
+    { href: "/patients", label: "Patients", icon: Users },
+    { href: "#", label: "Vitals", icon: Activity },
+  ];
+
+  const settingsGroup = [{ href: "#", label: "Configuration", icon: Settings }];
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
@@ -91,11 +95,7 @@ export function SideNav() {
       <nav className="flex flex-1 flex-col gap-4 overflow-y-auto px-2 pt-2">
         <NavGroup title="Clinic">
           {clinicGroup.map((it) => (
-            <NavItem
-              key={it.label}
-              {...it}
-              active={isActive(it.href)}
-            />
+            <NavItem key={it.label} {...it} active={isActive(it.href)} />
           ))}
         </NavGroup>
 
@@ -140,9 +140,11 @@ export function SideNav() {
           <span className="flex-1 text-[11.5px] font-medium text-foreground">
             Clinic open
           </span>
-          <span className="text-[10.5px] text-muted-foreground">
-            until {clinic.openUntil}
-          </span>
+          {clinic.openUntil && (
+            <span className="text-[10.5px] text-muted-foreground">
+              until {clinic.openUntil}
+            </span>
+          )}
         </div>
       </div>
 
@@ -154,14 +156,14 @@ export function SideNav() {
           className="flex w-full items-center gap-2.5 rounded-[10px] p-1.5 text-left transition-colors hover:bg-muted"
         >
           <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-primary-soft text-[11.5px] font-semibold text-primary">
-            IK
+            {clinic.initials}
           </div>
           <div className="flex min-w-0 flex-1 flex-col leading-tight">
             <span className="truncate text-[12.5px] font-semibold text-foreground">
               {clinic.doctorName}
             </span>
             <span className="truncate text-[10.5px] text-muted-foreground">
-              {clinic.doctorTitle}
+              {clinic.doctorTitle || clinic.clinicName}
             </span>
           </div>
           <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />

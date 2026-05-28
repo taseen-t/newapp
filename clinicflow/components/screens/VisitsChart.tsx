@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { weeklyVisits } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 const ranges = ["7D", "30D", "90D"] as const;
@@ -10,10 +9,9 @@ const ranges = ["7D", "30D", "90D"] as const;
 const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const previous = [3, 5, 4, 6, 7, 4, 7];
 
-export function VisitsChart() {
+export function VisitsChart({ data }: { data: number[] }) {
   const [range, setRange] = useState<(typeof ranges)[number]>("7D");
-  const data = weeklyVisits;
-  const max = Math.max(...data, ...previous) + 2;
+  const max = Math.max(...data, ...previous, 1) + 2;
 
   const W = 600;
   const H = 220;

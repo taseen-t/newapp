@@ -1,5 +1,3 @@
-import { clinic } from "./mock-data";
-
 /** Strip all non-digits from a phone number for use in wa.me / tel: URLs. */
 export function digitsOnly(phone: string): string {
   return phone.replace(/\D+/g, "");
@@ -22,6 +20,7 @@ export function followUpMessage(
   patientName: string,
   tag: string,
   due: string,
+  clinic: { clinicName: string; doctorName: string },
 ): string {
   const firstName = patientName.split(" ")[0];
   const date = new Date(due).toLocaleDateString("en-PK", {

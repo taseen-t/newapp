@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Home, CalendarClock, BellRing, User } from "lucide-react";
+import { Home, BellRing, Users, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/", label: "Today", icon: Home },
   { href: "/follow-ups", label: "Follow-ups", icon: BellRing },
-  { href: "/patient/p3", label: "Patients", icon: User },
-  { href: "/visit/p3", label: "Schedule", icon: CalendarClock },
+  { href: "/patients", label: "Patients", icon: Users },
+  { href: "/add-patient", label: "Add", icon: Plus },
 ];
 
 export function BottomNav() {

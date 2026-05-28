@@ -3,9 +3,11 @@
 import { motion } from "framer-motion";
 import { Bell } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
+import { useClinic } from "@/components/providers/ClinicProvider";
 
 export function Greeting() {
   const { toast } = useToast();
+  const { doctorName } = useClinic();
   const now = new Date();
   const hour = now.getHours();
   const greeting =
@@ -30,7 +32,7 @@ export function Greeting() {
         <h1 className="font-display text-[26px] leading-[1.1] text-foreground sm:text-[30px]">
           {greeting},
           <br />
-          <span className="text-primary">Dr. Khan</span>
+          <span className="text-primary">{doctorName}</span>
         </h1>
       </motion.div>
       <button

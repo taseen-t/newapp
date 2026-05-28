@@ -3,41 +3,34 @@
 import { motion } from "framer-motion";
 import { Clock3, Sparkles, CheckCircle2, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
-import { patients } from "@/lib/mock-data";
+import type { DashboardStats } from "@/lib/data/queries";
 
-export function StatusBreakdown() {
+export function StatusBreakdown({ stats }: { stats: DashboardStats }) {
   const { toast } = useToast();
-  const total = patients.length;
-  const counts = {
-    waiting: patients.filter((p) => p.status === "waiting").length,
-    inProgress: patients.filter((p) => p.status === "in-progress").length,
-    completed: patients.filter((p) => p.status === "completed").length,
-  };
+  const total = stats.patientsToday;
+  const pct = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
 
   const rows = [
     {
       label: "Waiting",
-      sub: `${counts.waiting} patients in queue`,
-      count: counts.waiting,
-      pct: Math.round((counts.waiting / total) * 100),
+      sub: `${stats.waiting} patients in queue`,
+      pct: pct(stats.waiting),
       icon: Clock3,
       barClass: "bg-amber-500",
       iconClass: "bg-warning-soft text-amber-600",
     },
     {
       label: "In visit",
-      sub: `${counts.inProgress} with the doctor`,
-      count: counts.inProgress,
-      pct: Math.round((counts.inProgress / total) * 100),
+      sub: `${stats.inProgress} with the doctor`,
+      pct: pct(stats.inProgress),
       icon: Sparkles,
       barClass: "bg-primary",
       iconClass: "bg-primary-soft text-primary",
     },
     {
       label: "Completed",
-      sub: `${counts.completed} discharged today`,
-      count: counts.completed,
-      pct: Math.round((counts.completed / total) * 100),
+      sub: `${stats.completed} discharged today`,
+      pct: pct(stats.completed),
       icon: CheckCircle2,
       barClass: "bg-success",
       iconClass: "bg-success-soft text-success",

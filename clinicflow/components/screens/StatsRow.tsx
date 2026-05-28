@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion";
 import { Users, Clock, CheckCircle2, ArrowUpRight } from "lucide-react";
-import { todayStats } from "@/lib/mock-data";
+import type { DashboardStats } from "@/lib/data/queries";
 
-export function StatsRow() {
+export function StatsRow({ stats }: { stats: DashboardStats }) {
   return (
     <div className="mt-5 px-5 lg:mt-0 lg:px-0">
       {/* Bento layout: 1 hero card + 2 supporting cards */}
@@ -23,15 +23,17 @@ export function StatsRow() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
               <Users className="h-4 w-4" strokeWidth={2.2} />
             </div>
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium backdrop-blur">
-              <ArrowUpRight className="h-2.5 w-2.5" strokeWidth={3} />
-              +2
-            </span>
+            {stats.newPatients > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium backdrop-blur">
+                <ArrowUpRight className="h-2.5 w-2.5" strokeWidth={3} />
+                {stats.newPatients} new
+              </span>
+            )}
           </div>
 
           <div className="relative mt-6 flex items-baseline gap-2">
             <span className="num-tabular text-[60px] font-semibold leading-none tracking-tight">
-              {todayStats.patientsToday}
+              {stats.patientsToday}
             </span>
             <span className="text-[11px] text-white/70">today</span>
           </div>
@@ -65,13 +67,15 @@ export function StatsRow() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft text-accent">
               <Clock className="h-4 w-4" strokeWidth={2.2} />
             </div>
-            <span className="rounded-full bg-warning-soft px-2 py-0.5 text-[9.5px] font-semibold uppercase text-amber-700">
-              Due
-            </span>
+            {stats.pendingFollowUps > 0 && (
+              <span className="rounded-full bg-warning-soft px-2 py-0.5 text-[9.5px] font-semibold uppercase text-amber-700">
+                Due
+              </span>
+            )}
           </div>
           <div className="mt-5">
             <span className="num-tabular text-[40px] font-semibold leading-none text-foreground">
-              {todayStats.pendingFollowUps}
+              {stats.pendingFollowUps}
             </span>
             <span className="mt-1 block text-[11.5px] font-medium text-muted-foreground">
               Pending follow-ups
@@ -90,24 +94,10 @@ export function StatsRow() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-success-soft text-success">
               <CheckCircle2 className="h-4 w-4" strokeWidth={2.2} />
             </div>
-            <div className="flex items-center gap-0.5">
-              {[1, 2].map((i) => (
-                <span
-                  key={i}
-                  className="block h-1.5 w-1.5 rounded-full bg-success"
-                />
-              ))}
-              {[3, 4, 5].map((i) => (
-                <span
-                  key={i}
-                  className="block h-1.5 w-1.5 rounded-full bg-border"
-                />
-              ))}
-            </div>
           </div>
           <div className="mt-5">
             <span className="num-tabular text-[40px] font-semibold leading-none text-foreground">
-              {todayStats.completedVisits}
+              {stats.completed}
             </span>
             <span className="mt-1 block text-[11.5px] font-medium text-muted-foreground">
               Completed visits

@@ -1,20 +1,42 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MessageCircle, AlertCircle } from "lucide-react";
+import { MessageCircle, AlertCircle, Check } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/toast";
-import { followUps } from "@/lib/mock-data";
+import { useClinic } from "@/components/providers/ClinicProvider";
+import type { FollowUpView } from "@/lib/data/queries";
 import { followUpMessage, openExternal, whatsappUrl } from "@/lib/contact";
 
-export function FollowUpStrip() {
+export function FollowUpStrip({ followUps }: { followUps: FollowUpView[] }) {
   const { toast } = useToast();
+  const clinic = useClinic();
   const due = followUps.filter((f) => f.status === "due").slice(0, 3);
   const missed = followUps.find((f) => f.status === "missed");
 
-  function send(f: typeof followUps[number]) {
-    openExternal(whatsappUrl(f.phone, followUpMessage(f.patientName, f.tag, f.due)));
+  function send(f: FollowUpView) {
+    openExternal(
+      whatsappUrl(f.phone, followUpMessage(f.patientName, f.tag, f.due, clinic)),
+    );
     toast(`WhatsApp opened for ${f.patientName}`, "success");
+  }
+
+  if (!missed && due.length === 0) {
+    return (
+      <div className="mx-5 flex items-center gap-3 rounded-2xl border border-dashed border-border bg-muted/30 p-4">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-success-soft text-success">
+          <Check className="h-4 w-4" strokeWidth={2.4} />
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[13px] font-semibold tracking-tight">
+            No reminders right now
+          </span>
+          <span className="text-[11.5px] text-muted-foreground">
+            Follow-ups you schedule will show up here.
+          </span>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -39,7 +61,8 @@ export function FollowUpStrip() {
                 {missed.patientName}
               </span>
               <span className="truncate text-[11px] text-muted-foreground">
-                {missed.tag} · {missed.note}
+                {missed.tag}
+                {missed.note ? ` · ${missed.note}` : ""}
               </span>
             </div>
           </div>

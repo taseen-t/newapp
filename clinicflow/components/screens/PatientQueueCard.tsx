@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { ChevronRight, Clock3, Sparkles, CheckCircle2 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
-import type { Patient } from "@/lib/mock-data";
+import type { QueueEntry } from "@/lib/data/queries";
 import { cn } from "@/lib/utils";
 
 interface Props {
-  patient: Patient;
-  index?: number;
+  entry: QueueEntry;
 }
 
 const statusConfig = {
@@ -30,13 +29,16 @@ const statusConfig = {
   },
 } as const;
 
-export function PatientQueueCard({ patient }: Props) {
-  const status = patient.status ?? "waiting";
-  const cfg = statusConfig[status];
+export function PatientQueueCard({ entry }: Props) {
+  const cfg = statusConfig[entry.status];
+  const href =
+    entry.status === "completed"
+      ? `/patient/${entry.patientId}`
+      : `/visit/${entry.visitId}`;
 
   return (
     <Link
-      href={status === "completed" ? `/patient/${patient.id}` : `/visit/${patient.id}`}
+      href={href}
       className="group relative flex items-center gap-3.5 rounded-2xl border border-border bg-white py-3.5 pl-3 pr-3.5 transition-colors hover:border-primary/30"
     >
       {/* Token */}
@@ -45,36 +47,38 @@ export function PatientQueueCard({ patient }: Props) {
           Token
         </span>
         <span className="mt-0.5 text-[16px] font-bold leading-none">
-          {patient.token}
+          {entry.token ?? "—"}
         </span>
       </div>
 
-      <Avatar name={patient.name} size="md" />
+      <Avatar name={entry.name} size="md" />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-center gap-1.5">
           <span className="truncate text-[14.5px] font-semibold tracking-tight">
-            {patient.name}
+            {entry.name}
           </span>
-          {patient.isNew && (
+          {entry.isNew && (
             <span className="rounded-full bg-accent-soft px-1.5 py-0.5 text-[9px] font-semibold uppercase text-accent">
               New
             </span>
           )}
         </div>
         <span className="truncate text-[12px] text-muted-foreground">
-          {patient.age ? `${patient.age}y` : ""}
-          {patient.age && patient.gender ? " · " : ""}
-          {patient.gender === "M" ? "Male" : patient.gender === "F" ? "Female" : ""}
-          {(patient.age || patient.gender) && patient.reason ? " · " : ""}
-          {patient.reason}
+          {entry.age ? `${entry.age}y` : ""}
+          {entry.age && entry.gender ? " · " : ""}
+          {entry.gender === "M" ? "Male" : entry.gender === "F" ? "Female" : ""}
+          {(entry.age || entry.gender) && entry.reason ? " · " : ""}
+          {entry.reason}
         </span>
       </div>
 
       <div className="flex flex-col items-end gap-1.5">
-        <span className="num-tabular text-[12px] font-medium text-foreground/80">
-          {patient.slot}
-        </span>
+        {entry.slot && (
+          <span className="num-tabular text-[12px] font-medium text-foreground/80">
+            {entry.slot}
+          </span>
+        )}
         <span
           className={cn(
             "inline-flex items-center gap-1 text-[10.5px] font-medium",
