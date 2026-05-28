@@ -27,7 +27,7 @@ export function TopBar({
   return (
     <div
       className={cn(
-        "sticky top-0 z-30 flex h-14 items-center justify-between gap-2 px-3",
+        "sticky top-0 z-30 flex h-14 items-center justify-between gap-2 px-3 lg:hidden",
         transparent ? "bg-transparent" : "glass border-b border-border/60",
         className,
       )}

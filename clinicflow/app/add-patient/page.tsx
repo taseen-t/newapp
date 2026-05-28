@@ -19,8 +19,20 @@ export default function AddPatientPage() {
   const ready = name.trim().length > 1 && phone.trim().length >= 7;
 
   return (
-    <AppShell withNav={false}>
+    <AppShell withNav={false} narrow>
       <TopBar title="New patient" subtitle="Takes under 10 seconds" />
+
+      <div className="hidden lg:block lg:pb-7">
+        <span className="text-[11.5px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+          Registration
+        </span>
+        <h1 className="mt-2 font-display text-[36px] leading-[1.05] text-balance">
+          Register a new patient
+        </h1>
+        <p className="mt-2 max-w-md text-[13.5px] text-muted-foreground">
+          Takes under 10 seconds. The doctor never has to type during the visit.
+        </p>
+      </div>
 
       <form
         onSubmit={(e) => {
@@ -28,26 +40,28 @@ export default function AddPatientPage() {
           if (!ready) return;
           router.push("/visit/p3");
         }}
-        className="flex h-[calc(100dvh-56px)] flex-col"
+        className="flex h-[calc(100dvh-56px)] flex-col lg:h-auto lg:rounded-3xl lg:border lg:border-border/70 lg:bg-white lg:shadow-card"
       >
-        <div className="flex-1 overflow-y-auto px-6 pb-8 pt-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-8 pt-4 lg:overflow-visible lg:px-8 lg:pb-6 lg:pt-7">
           <motion.div
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35 }}
             className="flex flex-col gap-6"
           >
-            <div className="flex items-center gap-4 rounded-2xl border border-border/70 bg-gradient-to-br from-primary-soft/60 to-accent-soft/40 p-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-soft">
-                <User2 className="h-5 w-5 text-primary" strokeWidth={2.2} />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[14px] font-semibold tracking-tight">
-                  Register a new patient
-                </span>
-                <span className="text-[12px] text-muted-foreground">
-                  We'll start their first visit right after.
-                </span>
+            <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-hero p-5 lg:hidden">
+              <div className="flex items-start gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white shadow-soft">
+                  <User2 className="h-[18px] w-[18px] text-primary" strokeWidth={2.2} />
+                </div>
+                <div className="flex flex-col">
+                  <h2 className="font-display text-[20px] leading-tight text-foreground">
+                    A new <span className="text-primary">patient</span>
+                  </h2>
+                  <p className="mt-1 text-[12px] text-muted-foreground">
+                    We'll start their first visit right after.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -57,7 +71,7 @@ export default function AddPatientPage() {
                 <Input
                   autoFocus
                   className="pl-11"
-                  placeholder="e.g. Aarav Mehta"
+                  placeholder="e.g. Hassan Raza"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
@@ -70,7 +84,7 @@ export default function AddPatientPage() {
                 <Input
                   type="tel"
                   className="pl-11"
-                  placeholder="+91 / +92"
+                  placeholder="+92 300 0000000"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                 />
@@ -112,11 +126,11 @@ export default function AddPatientPage() {
               </Field>
             </div>
 
-            <div className="mt-2 flex flex-col gap-2 rounded-2xl border border-dashed border-border bg-muted/30 p-4">
-              <span className="text-[12px] font-semibold tracking-tight">
-                Tip
+            <div className="mt-2 flex items-start gap-3 rounded-2xl border border-border bg-primary-soft/40 p-4">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+                i
               </span>
-              <p className="text-[12px] leading-relaxed text-muted-foreground">
+              <p className="text-[12.5px] leading-relaxed text-foreground/80">
                 Doctor never has to type during the visit. You only capture the
                 handwritten prescription as a photo at the end.
               </p>
@@ -124,7 +138,7 @@ export default function AddPatientPage() {
           </motion.div>
         </div>
 
-        <div className="sticky bottom-0 border-t border-border/60 bg-white/90 px-5 py-4 backdrop-blur-md">
+        <div className="sticky bottom-0 border-t border-border/60 bg-white/90 px-5 py-4 backdrop-blur-md lg:static lg:border-t-0 lg:bg-transparent lg:px-8 lg:pb-8 lg:pt-2 lg:backdrop-blur-none">
           <motion.button
             whileTap={{ scale: 0.98 }}
             type="submit"

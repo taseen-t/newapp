@@ -44,7 +44,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        display: ["var(--font-bricolage)", "var(--font-geist-sans)", "sans-serif"],
       },
       borderRadius: {
         xl: "14px",
@@ -54,8 +56,8 @@ const config: Config = {
       boxShadow: {
         soft: "0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 1px rgba(15, 23, 42, 0.03)",
         card: "0 4px 16px -4px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04)",
-        float: "0 12px 32px -8px rgba(13, 148, 136, 0.25), 0 4px 12px -2px rgba(15, 23, 42, 0.06)",
-        glow: "0 0 0 4px rgba(13, 148, 136, 0.08)",
+        float: "0 12px 32px -8px rgba(0, 111, 255, 0.28), 0 4px 12px -2px rgba(15, 23, 42, 0.06)",
+        glow: "0 0 0 4px rgba(0, 111, 255, 0.10)",
       },
       keyframes: {
         "fade-in": {

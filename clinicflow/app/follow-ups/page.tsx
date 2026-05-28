@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -8,6 +9,7 @@ import {
   AlertCircle,
   Check,
   Filter,
+  ChevronRight,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
@@ -55,31 +57,61 @@ export default function FollowUpsPage() {
         }
       />
 
-      <div className="px-5 pt-2">
+      {/* Desktop breadcrumb */}
+      <div className="-mx-10 mb-7 hidden border-b border-border px-10 pb-4 lg:flex lg:items-center lg:gap-2 xl:-mx-14 xl:px-14">
+        <Link
+          href="/"
+          className="text-[12.5px] text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Dashboard
+        </Link>
+        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+        <span className="text-[12.5px] font-medium text-foreground">Follow-ups</span>
+      </div>
+
+      <div className="hidden lg:mb-7 lg:flex lg:items-end lg:justify-between lg:gap-6">
+        <div className="flex flex-col gap-1">
+          <span className="text-[11.5px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+            Retention
+          </span>
+          <h1 className="font-display text-[36px] leading-[1.05]">
+            Follow-ups
+          </h1>
+          <p className="text-[13.5px] text-muted-foreground">
+            One-tap WhatsApp reminders. Keep continuity simple.
+          </p>
+        </div>
+      </div>
+
+      <div className="px-5 pt-2 lg:px-0 lg:pt-0">
         {/* Summary card */}
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-whatsapp-soft via-white to-primary-soft/40 p-5"
+          className="relative overflow-hidden rounded-3xl border border-border bg-gradient-hero p-6 lg:max-w-3xl"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[11.5px] font-semibold uppercase tracking-wide text-emerald-700">
+          <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-whatsapp/15 blur-2xl" />
+
+          <div className="relative flex items-center justify-between">
+            <div className="flex flex-col gap-1">
+              <span className="text-[10.5px] font-semibold uppercase tracking-[0.16em] text-emerald-700">
                 Today
               </span>
-              <span className="text-[28px] font-semibold tracking-tight leading-none">
-                {followUps.filter((f) => f.status === "due").length}{" "}
-                <span className="text-[15px] font-normal text-muted-foreground">
+              <div className="flex items-baseline gap-2">
+                <span className="num-tabular text-[56px] font-semibold leading-none text-foreground">
+                  {followUps.filter((f) => f.status === "due").length}
+                </span>
+                <span className="text-[14px] font-medium text-muted-foreground">
                   reminders to send
                 </span>
-              </span>
+              </div>
             </div>
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-whatsapp text-white shadow-float">
               <MessageCircle className="h-6 w-6" strokeWidth={2.2} />
             </div>
           </div>
-          <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-whatsapp py-3.5 text-[14px] font-semibold text-white shadow-soft transition-all hover:brightness-110 active:scale-[0.98]">
+          <button className="relative mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-whatsapp py-3.5 text-[14px] font-semibold text-white shadow-soft transition-all hover:brightness-110 active:scale-[0.98]">
             <MessageCircle className="h-4 w-4" strokeWidth={2.4} />
             Send all on WhatsApp
           </button>
@@ -157,7 +189,7 @@ export default function FollowUpsPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.25 }}
-            className="mt-4 flex flex-col gap-2.5 pb-8"
+            className="mt-4 flex flex-col gap-2.5 pb-8 lg:grid lg:grid-cols-2 lg:gap-3 xl:grid-cols-3"
           >
             {list.length === 0 && (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/30 p-10 text-center">
@@ -213,7 +245,7 @@ export default function FollowUpsPage() {
                         </span>
                         <span className="inline-flex items-center gap-1 text-[10.5px] text-muted-foreground">
                           <CalendarClock className="h-3 w-3" />
-                          {new Date(f.due).toLocaleDateString("en-IN", {
+                          {new Date(f.due).toLocaleDateString("en-PK", {
                             day: "2-digit",
                             month: "short",
                           })}

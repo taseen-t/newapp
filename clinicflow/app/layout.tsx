@@ -1,17 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+import { Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["500", "600", "700"],
+  variable: "--font-bricolage",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "ClinicFlow — A calm OS for your clinic",
   description:
-    "A lightweight digital memory and workflow assistant for solo consultants and small clinics.",
+    "A lightweight digital memory and workflow assistant for solo consultants and small clinics in Pakistan.",
 };
 
 export const viewport: Viewport = {
@@ -27,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${bricolage.variable}`}>
       <body className="font-sans antialiased">{children}</body>
     </html>
   );

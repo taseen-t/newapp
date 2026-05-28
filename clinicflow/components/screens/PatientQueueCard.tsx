@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ChevronRight, Sparkles, Clock3, CheckCircle2 } from "lucide-react";
+import { ChevronRight, Clock3, Sparkles, CheckCircle2 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import type { Patient } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
@@ -12,27 +12,31 @@ interface Props {
   index: number;
 }
 
+const statusConfig = {
+  waiting: {
+    label: "Waiting",
+    icon: Clock3,
+    className: "text-amber-700",
+    dot: "bg-amber-500",
+  },
+  "in-progress": {
+    label: "In visit",
+    icon: Sparkles,
+    className: "text-primary",
+    dot: "bg-primary animate-pulse",
+  },
+  completed: {
+    label: "Done",
+    icon: CheckCircle2,
+    className: "text-success",
+    dot: "bg-success",
+  },
+} as const;
+
 export function PatientQueueCard({ patient, index }: Props) {
   const status = patient.status ?? "waiting";
-  const statusMap = {
-    waiting: {
-      label: "Waiting",
-      icon: Clock3,
-      className: "bg-warning-soft text-amber-700",
-    },
-    "in-progress": {
-      label: "In visit",
-      icon: Sparkles,
-      className: "bg-primary-soft text-primary",
-    },
-    completed: {
-      label: "Done",
-      icon: CheckCircle2,
-      className: "bg-success-soft text-success",
-    },
-  } as const;
-
-  const StatusIcon = statusMap[status].icon;
+  const cfg = statusConfig[status];
+  const StatusIcon = cfg.icon;
 
   return (
     <motion.div
@@ -42,17 +46,16 @@ export function PatientQueueCard({ patient, index }: Props) {
     >
       <Link
         href={status === "completed" ? `/patient/${patient.id}` : `/visit/${patient.id}`}
-        className="group flex items-center gap-3 rounded-2xl border border-border/70 bg-white p-3 pr-2.5 shadow-soft transition-all hover:border-primary/30 hover:shadow-card active:scale-[0.99]"
+        className="group relative flex items-center gap-3.5 rounded-2xl border border-border bg-white py-3 pl-3 pr-3.5 transition-all hover:-translate-y-px hover:border-primary/30 hover:shadow-card active:scale-[0.995]"
       >
-        <div className="relative flex shrink-0 flex-col items-center">
-          <div className="flex h-12 w-12 flex-col items-center justify-center rounded-2xl bg-primary-soft/70 text-primary">
-            <span className="text-[9px] font-medium uppercase leading-none text-primary/60">
-              Token
-            </span>
-            <span className="text-[15px] font-bold leading-tight">
-              {patient.token}
-            </span>
-          </div>
+        {/* Token */}
+        <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-primary-soft text-primary">
+          <span className="text-[8.5px] font-semibold uppercase leading-none tracking-wider text-primary/60">
+            Token
+          </span>
+          <span className="mt-0.5 text-[16px] font-bold leading-none">
+            {patient.token}
+          </span>
         </div>
 
         <Avatar name={patient.name} size="md" />
@@ -78,20 +81,20 @@ export function PatientQueueCard({ patient, index }: Props) {
         </div>
 
         <div className="flex flex-col items-end gap-1.5">
-          <span className="text-[11.5px] font-medium tabular-nums text-foreground/80">
+          <span className="num-tabular text-[12px] font-medium text-foreground/80">
             {patient.slot}
           </span>
           <span
             className={cn(
-              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium",
-              statusMap[status].className,
+              "inline-flex items-center gap-1 text-[10.5px] font-medium",
+              cfg.className,
             )}
           >
-            <StatusIcon className="h-2.5 w-2.5" strokeWidth={2.5} />
-            {statusMap[status].label}
+            <span className={cn("h-1.5 w-1.5 rounded-full", cfg.dot)} />
+            {cfg.label}
           </span>
         </div>
-        <ChevronRight className="ml-0.5 h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5" />
+        <ChevronRight className="ml-0.5 h-4 w-4 shrink-0 text-muted-foreground/40 transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
       </Link>
     </motion.div>
   );

@@ -1,44 +1,43 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Bell, Stethoscope } from "lucide-react";
+import { Bell } from "lucide-react";
 
 export function Greeting() {
-  const hour = new Date().getHours();
+  const now = new Date();
+  const hour = now.getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const dateLabel = now.toLocaleDateString("en-PK", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 
   return (
-    <div className="flex items-center justify-between px-5 pt-5">
+    <div className="flex items-start justify-between px-5 pt-6">
       <motion.div
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-        className="flex flex-col"
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="flex flex-col gap-1"
       >
-        <span className="text-[12px] font-medium text-muted-foreground">
-          {greeting}
+        <span className="text-[11.5px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          {dateLabel}
         </span>
-        <div className="flex items-center gap-1.5">
-          <h1 className="text-[22px] font-semibold tracking-tight leading-tight">
-            Dr. Khan
-          </h1>
-          <span className="text-[22px]">·</span>
-          <span className="flex items-center gap-1 text-[14px] text-muted-foreground">
-            <Stethoscope className="h-3.5 w-3.5" strokeWidth={2} />
-            Clinic
-          </span>
-        </div>
+        <h1 className="font-display text-[26px] leading-[1.1] text-foreground sm:text-[30px]">
+          {greeting},
+          <br />
+          <span className="text-primary">Dr. Khan</span>
+        </h1>
       </motion.div>
-      <div className="flex items-center gap-2">
-        <button
-          aria-label="Notifications"
-          className="relative flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-white text-foreground/70 transition-colors hover:bg-muted"
-        >
-          <Bell className="h-[18px] w-[18px]" strokeWidth={2} />
-          <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-danger" />
-        </button>
-      </div>
+      <button
+        aria-label="Notifications"
+        className="relative mt-1 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-foreground/70 transition-colors hover:bg-muted"
+      >
+        <Bell className="h-[17px] w-[17px]" strokeWidth={2} />
+        <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-accent" />
+      </button>
     </div>
   );
 }

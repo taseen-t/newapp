@@ -4,32 +4,32 @@
 
 @layer base {
   :root {
-    /* Surfaces */
+    /* Surfaces — clean white like hospital signage */
     --background: 0 0% 100%;
     --foreground: 222 47% 11%;
 
-    --muted: 210 40% 98%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --border: 214 32% 91%;
-    --ring: 173 80% 36%;
+    --border: 220 13% 91%;
+    --ring: 214 100% 48%;
 
-    /* Brand — soft medical teal */
-    --primary: 173 80% 36%;
+    /* Brand — confident hospital blue */
+    --primary: 214 100% 48%;
     --primary-foreground: 0 0% 100%;
-    --primary-soft: 167 75% 95%;
+    --primary-soft: 213 100% 95%;
 
-    /* Accent — soft sky blue */
-    --accent: 199 89% 48%;
+    /* Accent — warm coral kept for status & alerts */
+    --accent: 14 90% 60%;
     --accent-foreground: 0 0% 100%;
-    --accent-soft: 204 94% 96%;
+    --accent-soft: 18 100% 96%;
 
     /* Status */
-    --success: 142 71% 45%;
-    --success-soft: 138 76% 96%;
-    --warning: 38 92% 50%;
-    --warning-soft: 48 96% 95%;
-    --danger: 0 84% 60%;
+    --success: 158 64% 40%;
+    --success-soft: 152 76% 95%;
+    --warning: 36 95% 50%;
+    --warning-soft: 42 95% 95%;
+    --danger: 0 78% 58%;
     --danger-soft: 0 86% 97%;
   }
 
@@ -44,27 +44,25 @@
     color: hsl(var(--foreground));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
   }
 
   body {
-    font-family: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: var(--font-geist-sans), "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: -0.011em;
   }
 
-  /* Tighter mobile tap targets */
   button,
   [role="button"] {
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Inputs */
   input,
   textarea,
   select {
     font-family: inherit;
   }
 
-  /* Scrollbars */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -91,10 +89,26 @@
     padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
   }
 
+  /* Display utility — Bricolage Grotesque, characterful contemporary sans */
+  .font-display {
+    font-family: var(--font-bricolage), var(--font-geist-sans), system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    font-feature-settings: "ss01", "ss02";
+  }
+
+  /* Tabular figures for dashboard numbers */
+  .num-tabular {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-feature-settings: "tnum", "zero";
+    font-variant-numeric: tabular-nums slashed-zero;
+    letter-spacing: -0.02em;
+  }
+
   .glass {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: saturate(180%) blur(12px);
-    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
   }
 
   .bg-grid {
@@ -106,10 +120,46 @@
     background-size: 24px 24px;
   }
 
+  /* Subtle paper grain — medical chart feel */
+  .bg-paper {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3' /%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.10 0 0 0 0 0.18 0 0 0 0.10 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+  }
+
+  /* Medical plus motif — decorative atmospheric pattern */
+  .bg-plus {
+    background-image:
+      linear-gradient(currentColor, currentColor),
+      linear-gradient(currentColor, currentColor);
+    background-size: 14px 2px, 2px 14px;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .bg-plus-grid {
+    background-image:
+      linear-gradient(currentColor 2px, transparent 2px),
+      linear-gradient(90deg, currentColor 2px, transparent 2px);
+    background-size: 36px 36px;
+    background-position: -1px -1px;
+    mask-image: radial-gradient(circle at 50% 0%, black 0%, transparent 70%);
+  }
+
   .gradient-mesh {
     background:
-      radial-gradient(at 0% 0%, hsla(173, 80%, 88%, 0.45) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(199, 89%, 88%, 0.4) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsla(167, 75%, 92%, 0.35) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, hsla(214, 100%, 88%, 0.45) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(14, 90%, 88%, 0.35) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(213, 100%, 95%, 0.5) 0px, transparent 50%);
+  }
+
+  .gradient-hero {
+    background:
+      radial-gradient(at 20% 0%, hsla(213, 100%, 95%, 0.85) 0px, transparent 55%),
+      radial-gradient(at 80% 20%, hsla(214, 100%, 90%, 0.55) 0px, transparent 55%),
+      radial-gradient(at 50% 100%, hsla(0, 0%, 100%, 0.7) 0px, transparent 55%);
+  }
+
+  .text-balance {
+    text-wrap: balance;
   }
 }

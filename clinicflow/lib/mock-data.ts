@@ -50,11 +50,19 @@ export type FollowUp = {
   daysOverdue?: number;
 };
 
+export const clinic = {
+  doctorName: "Dr. Imran Khan",
+  doctorTitle: "General Physician",
+  clinicName: "Khan Clinic",
+  city: "Lahore",
+  openUntil: "8:00 PM",
+};
+
 export const patients: Patient[] = [
   {
     id: "p1",
-    name: "Aarav Mehta",
-    phone: "+91 98765 43210",
+    name: "Hassan Raza",
+    phone: "+92 300 4521789",
     age: 42,
     gender: "M",
     token: 1,
@@ -66,7 +74,7 @@ export const patients: Patient[] = [
   {
     id: "p2",
     name: "Fatima Khan",
-    phone: "+92 300 1234567",
+    phone: "+92 321 8765432",
     age: 56,
     gender: "F",
     token: 2,
@@ -77,8 +85,8 @@ export const patients: Patient[] = [
   },
   {
     id: "p3",
-    name: "Rohan Verma",
-    phone: "+91 99887 76543",
+    name: "Bilal Ahmed",
+    phone: "+92 333 1122334",
     age: 8,
     gender: "M",
     token: 3,
@@ -101,8 +109,8 @@ export const patients: Patient[] = [
   },
   {
     id: "p5",
-    name: "Vikram Singh",
-    phone: "+91 80123 45678",
+    name: "Imran Sheikh",
+    phone: "+92 345 6677889",
     age: 67,
     gender: "M",
     token: 5,
@@ -113,8 +121,8 @@ export const patients: Patient[] = [
   },
   {
     id: "p6",
-    name: "Priya Sharma",
-    phone: "+91 70010 22345",
+    name: "Zainab Malik",
+    phone: "+92 312 4455667",
     age: 29,
     gender: "F",
     token: 6,
@@ -126,7 +134,7 @@ export const patients: Patient[] = [
   {
     id: "p7",
     name: "Sana Tariq",
-    phone: "+92 333 1122334",
+    phone: "+92 333 5566778",
     age: 51,
     gender: "F",
     token: 7,
@@ -143,7 +151,8 @@ export const visits: Visit[] = [
     patientId: "p3",
     date: "2026-05-28T10:00:00",
     diagnoses: ["Fever"],
-    notes: "Mild viral fever. Hydration advised. Recheck in 3 days if no improvement.",
+    notes:
+      "Mild viral fever. Hydration advised. Recheck in 3 days if no improvement.",
   },
   {
     id: "v2",
@@ -173,8 +182,8 @@ export const followUps: FollowUp[] = [
   {
     id: "f1",
     patientId: "p1",
-    patientName: "Aarav Mehta",
-    phone: "+91 98765 43210",
+    patientName: "Hassan Raza",
+    phone: "+92 300 4521789",
     due: "2026-05-28",
     tag: "Diabetes",
     status: "due",
@@ -184,7 +193,7 @@ export const followUps: FollowUp[] = [
     id: "f2",
     patientId: "p2",
     patientName: "Fatima Khan",
-    phone: "+92 300 1234567",
+    phone: "+92 321 8765432",
     due: "2026-05-28",
     tag: "BP Review",
     status: "due",
@@ -193,8 +202,8 @@ export const followUps: FollowUp[] = [
   {
     id: "f3",
     patientId: "p5",
-    patientName: "Vikram Singh",
-    phone: "+91 80123 45678",
+    patientName: "Imran Sheikh",
+    phone: "+92 345 6677889",
     due: "2026-05-27",
     tag: "Post-op",
     status: "due",
@@ -204,7 +213,7 @@ export const followUps: FollowUp[] = [
     id: "f4",
     patientId: "p7",
     patientName: "Sana Tariq",
-    phone: "+92 333 1122334",
+    phone: "+92 333 5566778",
     due: "2026-05-22",
     tag: "Cholesterol",
     status: "missed",
@@ -225,8 +234,8 @@ export const followUps: FollowUp[] = [
   {
     id: "f6",
     patientId: "p6",
-    patientName: "Priya Sharma",
-    phone: "+91 70010 22345",
+    patientName: "Zainab Malik",
+    phone: "+92 312 4455667",
     due: "2026-06-04",
     tag: "Vaccination",
     status: "scheduled",
@@ -238,7 +247,12 @@ export const todayStats = {
   patientsToday: 7,
   pendingFollowUps: 3,
   completedVisits: 2,
+  avgWaitMinutes: 8,
+  newPatients: 2,
 };
+
+// 7-day visit history for sparkline
+export const weeklyVisits = [4, 6, 5, 7, 8, 6, 9];
 
 export function getPatient(id: string): Patient | undefined {
   return patients.find((p) => p.id === id);

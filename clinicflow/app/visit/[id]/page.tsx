@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,6 +16,7 @@ import {
   ImageIcon,
   ScanLine,
   Pill,
+  ChevronRight,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
@@ -80,17 +82,59 @@ export default function ActiveVisitPage({
         subtitle="In progress"
       />
 
-      <div className="px-5 pb-8 pt-3">
+      {/* Desktop breadcrumb bar */}
+      <div className="-mx-10 mb-7 hidden border-b border-border px-10 pb-4 lg:flex lg:items-center lg:gap-2 xl:-mx-14 xl:px-14">
+        <Link
+          href="/"
+          className="text-[12.5px] text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Dashboard
+        </Link>
+        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+        <Link
+          href="/"
+          className="text-[12.5px] text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Today's queue
+        </Link>
+        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+        <span className="text-[12.5px] font-medium text-foreground">
+          {patient.name}
+        </span>
+      </div>
+
+      <div className="hidden lg:mb-6 lg:flex lg:items-end lg:justify-between lg:gap-6">
+        <div className="flex flex-col gap-1">
+          <span className="text-[11.5px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+            Token {patient.token ?? 3} · In progress
+          </span>
+          <h1 className="font-display text-[36px] leading-[1.05] text-balance">
+            Active visit
+          </h1>
+          <p className="text-[13.5px] text-muted-foreground">
+            Capture what mattered. The doctor stays focused on the patient.
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/60 px-3 py-1.5 text-[11.5px] font-semibold text-primary">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inset-0 animate-ping-soft rounded-full bg-primary/60" />
+            <span className="relative h-2 w-2 rounded-full bg-primary" />
+          </span>
+          Live consultation
+        </span>
+      </div>
+
+      <div className="px-5 pb-8 pt-3 lg:px-0 lg:pb-0 lg:pt-0">
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className="relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-primary-soft/70 via-white to-accent-soft/40 p-4"
+          className="relative overflow-hidden rounded-3xl border border-border bg-gradient-hero p-5"
         >
-          <div className="flex items-center gap-3.5">
-            <Avatar name={patient.name} size="lg" ring />
+          <div className="flex items-center gap-4">
+            <Avatar name={patient.name} size="xl" ring />
             <div className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-[16px] font-semibold tracking-tight">
+              <span className="truncate font-display text-[24px] leading-tight text-foreground">
                 {patient.name}
               </span>
               <span className="truncate text-[12px] text-muted-foreground">
@@ -124,8 +168,10 @@ export default function ActiveVisitPage({
           </div>
         </motion.div>
 
+        <div className="lg:mt-6 lg:grid lg:grid-cols-2 lg:gap-6">
+        <div className="lg:flex lg:flex-col lg:gap-6">
         {/* Quick notes */}
-        <section className="mt-6">
+        <section className="mt-6 lg:mt-0">
           <div className="mb-2 flex items-center justify-between px-1">
             <h3 className="text-[13.5px] font-semibold tracking-tight">
               Quick notes
@@ -255,8 +301,10 @@ export default function ActiveVisitPage({
           </button>
         </section>
 
+        </div>
+
         {/* PRESCRIPTION — visual focus */}
-        <section className="mt-6">
+        <section className="mt-6 lg:mt-0 lg:sticky lg:top-6">
           <div className="mb-2 flex items-center justify-between px-1">
             <h3 className="text-[13.5px] font-semibold tracking-tight">
               Capture prescription
@@ -276,7 +324,7 @@ export default function ActiveVisitPage({
                 exit={{ opacity: 0, scale: 0.98 }}
                 className="relative overflow-hidden rounded-3xl border border-dashed border-primary/30 bg-gradient-to-br from-primary-soft/40 via-white to-accent-soft/30 p-6"
               >
-                <div className="absolute inset-0 bg-grid opacity-[0.35]" />
+                <div className="absolute inset-0 bg-plus-grid text-primary/15" />
                 <div className="relative flex flex-col items-center text-center">
                   <div className="relative">
                     <motion.div
@@ -293,8 +341,8 @@ export default function ActiveVisitPage({
                       <Pill className="h-3 w-3" strokeWidth={2.5} />
                     </span>
                   </div>
-                  <h4 className="mt-4 text-[17px] font-semibold tracking-tight">
-                    Snap the handwritten Rx
+                  <h4 className="mt-4 font-display text-[22px] leading-tight text-balance">
+                    Snap the <span className="text-primary">handwritten</span> Rx
                   </h4>
                   <p className="mt-1 max-w-[260px] text-[12.5px] leading-relaxed text-muted-foreground">
                     Doctor writes by hand as always. We just save the photo and
@@ -327,8 +375,8 @@ export default function ActiveVisitPage({
               >
                 <div className="relative h-44 overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 to-rose-50">
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="flex flex-col gap-1.5 px-6 font-[var(--font-inter)] text-sm italic text-foreground/40">
-                      <span className="font-serif text-2xl tracking-wide">Rx</span>
+                    <div className="flex flex-col gap-1.5 px-6 text-sm italic text-foreground/40">
+                      <span className="font-['Times_New_Roman',serif] text-2xl not-italic tracking-wide">Rx</span>
                       <span className="h-px w-32 bg-foreground/15" />
                       <span>1. Tab. Paracetamol 500mg</span>
                       <span className="text-foreground/30">  ½–1 tab SOS</span>
@@ -356,13 +404,14 @@ export default function ActiveVisitPage({
             )}
           </AnimatePresence>
         </section>
+        </div>
       </div>
 
-      <div className="sticky bottom-0 border-t border-border/60 bg-white/90 px-5 py-4 backdrop-blur-md">
+      <div className="sticky bottom-0 border-t border-border/60 bg-white/90 px-5 py-4 backdrop-blur-md lg:static lg:mt-6 lg:flex lg:justify-end lg:border-t-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={() => router.push(`/patient/${patient.id}`)}
-          className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-foreground text-[15px] font-semibold text-white shadow-float transition-all hover:brightness-110"
+          className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-foreground text-[15px] font-semibold text-white shadow-float transition-all hover:brightness-110 lg:h-12 lg:w-auto lg:px-6"
         >
           <Check className="h-4 w-4" strokeWidth={2.6} />
           Complete visit

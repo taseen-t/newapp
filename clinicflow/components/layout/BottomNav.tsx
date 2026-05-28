@@ -17,7 +17,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 flex justify-center px-4 safe-bottom">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 flex justify-center px-4 safe-bottom lg:hidden">
       <nav className="pointer-events-auto flex w-full items-center justify-around rounded-full border border-border/70 bg-white/90 px-2 py-2 shadow-card backdrop-blur-md">
         {items.map(({ href, label, icon: Icon }) => {
           const isActive =

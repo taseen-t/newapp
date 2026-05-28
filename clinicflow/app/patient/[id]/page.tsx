@@ -38,20 +38,54 @@ export default function PatientProfilePage({
     <AppShell>
       <TopBar title="Patient" />
 
-      <div className="px-5 pt-2">
-        {/* Hero card */}
+      {/* Desktop breadcrumb */}
+      <div className="-mx-10 mb-7 hidden border-b border-border px-10 pb-4 lg:flex lg:items-center lg:gap-2 xl:-mx-14 xl:px-14">
+        <Link
+          href="/"
+          className="text-[12.5px] text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Dashboard
+        </Link>
+        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+        <span className="text-[12.5px] text-muted-foreground">Patients</span>
+        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+        <span className="text-[12.5px] font-medium text-foreground">
+          {patient.name}
+        </span>
+      </div>
+
+      <div className="hidden lg:mb-7 lg:flex lg:items-end lg:justify-between lg:gap-6">
+        <div className="flex flex-col gap-1">
+          <span className="text-[11.5px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+            Patient memory · {visits.length} visits
+          </span>
+          <h1 className="font-display text-[36px] leading-[1.05]">
+            {patient.name}
+          </h1>
+          <p className="text-[13.5px] text-muted-foreground">
+            {patient.age ? `${patient.age}y` : ""}
+            {patient.age && patient.gender ? " · " : ""}
+            {patient.gender === "M" ? "Male" : patient.gender === "F" ? "Female" : ""}
+            {" · "}
+            Last seen 2 months ago
+          </p>
+        </div>
+      </div>
+
+      <div className="px-5 pt-2 lg:grid lg:grid-cols-[360px_1fr] lg:items-start lg:gap-8 lg:px-0 lg:pt-0">
+        {/* Hero card — sticky on desktop */}
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-primary-soft/60 via-white to-accent-soft/40 p-5"
+          className="relative overflow-hidden rounded-3xl border border-border bg-gradient-hero p-6 lg:sticky lg:top-6"
         >
-          <div className="flex items-start gap-3.5">
-            <Avatar name={patient.name} size="xl" ring />
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <span className="truncate text-[19px] font-semibold tracking-tight leading-tight">
+          <div className="flex flex-col items-start gap-4 lg:items-center lg:text-center">
+            <Avatar name={patient.name} size="xl" ring className="h-20 w-20 text-lg" />
+            <div className="flex min-w-0 flex-1 flex-col gap-1 lg:items-center">
+              <h2 className="font-display text-[26px] leading-tight text-foreground lg:text-[28px]">
                 {patient.name}
-              </span>
+              </h2>
               <span className="text-[12.5px] text-muted-foreground">
                 {patient.age ? `${patient.age}y` : ""}
                 {patient.age && patient.gender ? " · " : ""}
@@ -101,8 +135,9 @@ export default function PatientProfilePage({
           </div>
         </motion.div>
 
+        <div className="lg:flex lg:flex-col">
         {/* Diagnosis chips */}
-        <section className="mt-6">
+        <section className="mt-6 lg:mt-0">
           <SectionHeader
             title="Conditions"
             description="Across all visits"
@@ -140,7 +175,7 @@ export default function PatientProfilePage({
                 className="relative h-32 w-24 shrink-0 overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-amber-50 to-rose-50 shadow-soft"
               >
                 <div className="flex h-full flex-col gap-1 p-2.5 text-[8px] italic text-foreground/40">
-                  <span className="font-serif text-base not-italic tracking-wide">
+                  <span className="font-['Times_New_Roman',serif] text-base not-italic tracking-wide">
                     Rx
                   </span>
                   <span className="h-px w-12 bg-foreground/15" />
@@ -235,7 +270,7 @@ export default function PatientProfilePage({
                     <div className="rounded-2xl border border-border/70 bg-white p-3.5 shadow-soft">
                       <div className="flex items-center justify-between">
                         <span className="text-[11.5px] font-medium text-muted-foreground">
-                          {new Date(v.date).toLocaleDateString("en-IN", {
+                          {new Date(v.date).toLocaleDateString("en-PK", {
                             day: "2-digit",
                             month: "short",
                             year: "numeric",
@@ -281,6 +316,7 @@ export default function PatientProfilePage({
             </div>
           </div>
         </section>
+        </div>
       </div>
 
       <BottomNav />
