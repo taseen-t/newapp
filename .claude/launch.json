@@ -13,6 +13,19 @@
       "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
       "runtimeArgs": ["server/src/index.js"],
       "port": 4000
+    },
+    {
+      "name": "helix",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": ["C:\\Users\\drrab\\OneDrive\\Desktop\\helix-landing\\serve.mjs"],
+      "port": 4321
+    },
+    {
+      "name": "clinicflow",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev", "--port", "3100"],
+      "cwd": "clinicflow",
+      "port": 3100
     }
   ]
 }

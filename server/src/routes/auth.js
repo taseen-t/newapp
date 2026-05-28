@@ -25,7 +25,7 @@ router.post('/register', async (req, res) => {
   const hash = bcrypt.hashSync(password, 10);
   const avatar = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
   const info = await run(
-    'INSERT INTO users (username, email, password_hash, avatar) VALUES (?, ?, ?, ?)',
+    'INSERT INTO users (username, email, password_hash, avatar) VALUES (?, ?, ?, ?) RETURNING id',
     [username, email, hash, avatar]
   );
   const user = await get('SELECT * FROM users WHERE id = ?', [info.lastInsertRowid]);

@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Surfaces */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --muted: 210 40% 98%;
+    --muted-foreground: 215 16% 47%;
+
+    --border: 214 32% 91%;
+    --ring: 173 80% 36%;
+
+    /* Brand — soft medical teal */
+    --primary: 173 80% 36%;
+    --primary-foreground: 0 0% 100%;
+    --primary-soft: 167 75% 95%;
+
+    /* Accent — soft sky blue */
+    --accent: 199 89% 48%;
+    --accent-foreground: 0 0% 100%;
+    --accent-soft: 204 94% 96%;
+
+    /* Status */
+    --success: 142 71% 45%;
+    --success-soft: 138 76% 96%;
+    --warning: 38 92% 50%;
+    --warning-soft: 48 96% 95%;
+    --danger: 0 84% 60%;
+    --danger-soft: 0 86% 97%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html,
+  body {
+    height: 100%;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  body {
+    font-family: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  /* Tighter mobile tap targets */
+  button,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Inputs */
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+  }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: saturate(180%) blur(12px);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+  }
+
+  .bg-grid {
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      hsl(var(--border)) 1px,
+      transparent 0
+    );
+    background-size: 24px 24px;
+  }
+
+  .gradient-mesh {
+    background:
+      radial-gradient(at 0% 0%, hsla(173, 80%, 88%, 0.45) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(199, 89%, 88%, 0.4) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(167, 75%, 92%, 0.35) 0px, transparent 50%);
+  }
+}

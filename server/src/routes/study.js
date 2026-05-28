@@ -8,7 +8,7 @@ const router = Router();
 // All subjects with deck counts.
 router.get('/subjects', async (req, res) => {
   const subjects = await all(
-    `SELECT s.*, COUNT(DISTINCT d.id) AS deck_count
+    `SELECT s.*, COUNT(DISTINCT d.id)::int AS deck_count
      FROM subjects s LEFT JOIN decks d ON d.subject_id = s.id
      GROUP BY s.id ORDER BY s.name`
   );
@@ -20,13 +20,13 @@ router.get('/decks', async (req, res) => {
   const { subjectId } = req.query;
   const rows = await all(
     `SELECT d.*, s.name AS subject_name, s.color AS subject_color, u.username AS owner_name,
-            COUNT(c.id) AS card_count
+            COUNT(c.id)::int AS card_count
      FROM decks d
      LEFT JOIN subjects s ON s.id = d.subject_id
      LEFT JOIN users u ON u.id = d.owner_id
      LEFT JOIN cards c ON c.deck_id = d.id
      ${subjectId ? 'WHERE d.subject_id = ?' : ''}
-     GROUP BY d.id ORDER BY d.created_at DESC`,
+     GROUP BY d.id, s.name, s.color, u.username ORDER BY d.created_at DESC`,
     subjectId ? [subjectId] : []
   );
   res.json({ decks: rows });
@@ -45,7 +45,7 @@ router.post('/decks', authRequired, async (req, res) => {
   const { title, description, subjectId, cards } = req.body || {};
   if (!title) return res.status(400).json({ error: 'Title is required' });
   const info = await run(
-    'INSERT INTO decks (title, description, subject_id, owner_id) VALUES (?, ?, ?, ?)',
+    'INSERT INTO decks (title, description, subject_id, owner_id) VALUES (?, ?, ?, ?) RETURNING id',
     [title, description || '', subjectId || null, req.user.id]
   );
   const deckId = info.lastInsertRowid;
@@ -63,7 +63,7 @@ router.post('/decks', authRequired, async (req, res) => {
 router.post('/decks/:id/cards', authRequired, async (req, res) => {
   const { front, back } = req.body || {};
   if (!front || !back) return res.status(400).json({ error: 'front and back are required' });
-  const info = await run('INSERT INTO cards (deck_id, front, back) VALUES (?, ?, ?)', [
+  const info = await run('INSERT INTO cards (deck_id, front, back) VALUES (?, ?, ?) RETURNING id', [
     req.params.id,
     front,
     back,

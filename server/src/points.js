@@ -27,14 +27,14 @@ async function metricValue(userId, metric) {
       return (await get('SELECT streak AS v FROM users WHERE id = ?', [userId]))?.v ?? 0;
     case 'cards_studied':
       return (
-        (await get('SELECT COALESCE(SUM(cards_studied),0) AS v FROM study_sessions WHERE user_id = ?', [userId]))?.v ?? 0
+        (await get('SELECT COALESCE(SUM(cards_studied),0)::int AS v FROM study_sessions WHERE user_id = ?', [userId]))?.v ?? 0
       );
     case 'sessions':
-      return (await get('SELECT COUNT(*) AS v FROM study_sessions WHERE user_id = ?', [userId]))?.v ?? 0;
+      return (await get('SELECT COUNT(*)::int AS v FROM study_sessions WHERE user_id = ?', [userId]))?.v ?? 0;
     case 'questions':
-      return (await get('SELECT COUNT(*) AS v FROM questions WHERE user_id = ?', [userId]))?.v ?? 0;
+      return (await get('SELECT COUNT(*)::int AS v FROM questions WHERE user_id = ?', [userId]))?.v ?? 0;
     case 'answers':
-      return (await get('SELECT COUNT(*) AS v FROM answers WHERE user_id = ?', [userId]))?.v ?? 0;
+      return (await get('SELECT COUNT(*)::int AS v FROM answers WHERE user_id = ?', [userId]))?.v ?? 0;
     default:
       return 0;
   }
@@ -49,7 +49,10 @@ export async function checkMilestones(userId) {
   for (const m of allMs) {
     if (owned.has(m.id)) continue;
     if ((await metricValue(userId, m.metric)) >= m.threshold) {
-      await run('INSERT OR IGNORE INTO user_milestones (user_id, milestone_id) VALUES (?, ?)', [userId, m.id]);
+      await run(
+        'INSERT INTO user_milestones (user_id, milestone_id) VALUES (?, ?) ON CONFLICT DO NOTHING',
+        [userId, m.id]
+      );
       newly.push(m);
     }
   }
