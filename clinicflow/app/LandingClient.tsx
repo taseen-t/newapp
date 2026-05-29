@@ -22,14 +22,13 @@ import {
   Mail,
   Star,
   BarChart3,
-  ChevronDown,
 } from "lucide-react";
 
 const WHATSAPP_SUPPORT = "https://wa.me/923000000000";
 const SUPPORT_EMAIL = "support@clinicflow.app";
 
 const IMG = {
-  hero: "https://images.unsplash.com/photo-1631558556874-1d127211f574?auto=format&fit=crop&w=2000&q=80",
+  hero: "https://images.unsplash.com/photo-1631558556874-1d127211f574?auto=format&fit=crop&w=1200&q=72",
   queue:
     "https://images.unsplash.com/photo-1631815590058-860e4f83c1e8?auto=format&fit=crop&w=1200&q=80",
   memory:
@@ -88,29 +87,29 @@ export function LandingClient() {
 
 function SiteHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-foreground/80 backdrop-blur-md supports-[backdrop-filter]:bg-foreground/60">
+    <header className="sticky top-0 z-50 border-b border-border/70 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 lg:px-8">
-        <Link href="/" className="flex items-center gap-2.5 text-white">
-          <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-primary text-white shadow-soft">
+        <Link href="/" className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-white shadow-soft">
             <HeartPulse className="h-[18px] w-[18px]" strokeWidth={2.2} />
           </span>
-          <span className="text-[16px] font-semibold tracking-tight">ClinicFlow</span>
-          <span className="rounded-md bg-white/15 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wider text-white/90">
+          <span className="text-[16px] font-semibold tracking-tight text-foreground">ClinicFlow</span>
+          <span className="rounded-md bg-primary-soft px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wider text-primary">
             Beta
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-7 text-[13.5px] font-medium text-white/70 md:flex">
-          <a href="#features" className="transition-colors hover:text-white">Features</a>
-          <a href="#pricing" className="transition-colors hover:text-white">Pricing</a>
-          <a href="#download" className="transition-colors hover:text-white">Mobile app</a>
-          <a href="#support" className="transition-colors hover:text-white">Support</a>
+        <nav className="hidden items-center gap-8 text-[13.5px] font-medium text-muted-foreground md:flex">
+          <a href="#features" className="transition-colors hover:text-foreground">Features</a>
+          <a href="#pricing" className="transition-colors hover:text-foreground">Pricing</a>
+          <a href="#download" className="transition-colors hover:text-foreground">Mobile app</a>
+          <a href="#support" className="transition-colors hover:text-foreground">Support</a>
         </nav>
 
         <div className="flex items-center gap-2.5">
           <Link
             href="/login"
-            className="hidden h-9 items-center rounded-lg px-3 text-[13px] font-medium text-white/80 transition-colors hover:bg-white/10 sm:flex"
+            className="hidden h-9 items-center rounded-lg px-3 text-[13px] font-medium text-foreground/70 transition-colors hover:bg-muted sm:flex"
           >
             Login
           </Link>
@@ -131,67 +130,73 @@ function SiteHeader() {
 
 function Hero() {
   return (
-    <section className="relative -mt-16 flex min-h-[100svh] items-center overflow-hidden">
-      {/* Full-bleed image */}
-      <img
-        src={IMG.hero}
-        alt="Doctor talking with a patient during a clinic consultation"
-        className="absolute inset-0 h-full w-full object-cover"
-        loading="eager"
-      />
-      {/* Dark scrim for legibility */}
-      <div className="absolute inset-0 bg-gradient-to-b from-foreground/80 via-foreground/65 to-foreground/85" />
-      <div className="absolute inset-0 bg-gradient-to-r from-foreground/70 to-transparent" />
+    <section className="relative overflow-hidden border-b border-border">
+      {/* soft minimal accents */}
+      <div className="pointer-events-none absolute -right-24 -top-32 -z-10 h-[520px] w-[520px] rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-grid opacity-50" />
 
-      {/* Hero text is visible by default (no JS gate) with a robust CSS
-          stagger — the requested slide/fade/stagger animations live in the
-          scrolling sections below. */}
-      <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 pt-28 lg:px-8 lg:pt-32">
-        <h1 className="max-w-3xl animate-slide-up font-display text-[40px] leading-[1.05] text-white text-balance motion-reduce:animate-none sm:text-[56px] lg:text-[66px]">
-          A calm operating system for your clinic
-        </h1>
-
-        <p className="mt-6 max-w-xl animate-slide-up text-[16px] leading-relaxed text-white/85 [animation-delay:90ms] [animation-fill-mode:backwards] motion-reduce:animate-none sm:text-[17.5px]">
-          Run the daily queue, remember every patient, capture handwritten
-          prescriptions, and follow up on WhatsApp — all from one phone. Built
-          for clinics across Pakistan.
-        </p>
-
-        <div className="mt-8 flex animate-slide-up flex-col gap-3 [animation-delay:180ms] [animation-fill-mode:backwards] motion-reduce:animate-none sm:flex-row sm:items-center">
-          <Link
-            href="/signup"
-            className="flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-[15px] font-semibold text-white shadow-float transition-all hover:brightness-110 active:scale-[0.98]"
-          >
-            Start free
-            <ArrowRight className="h-4 w-4" strokeWidth={2.4} />
-          </Link>
-          <a
-            href="#features"
-            className="flex h-12 items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 text-[15px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
-          >
-            See how it works
-          </a>
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 pb-16 pt-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:px-8 lg:pb-24 lg:pt-20">
+        {/* Copy */}
+        <div>
+          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-3 py-1.5 text-[12px] font-medium text-foreground/70 shadow-soft">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            Built for clinics in Pakistan
+          </span>
+          <h1 className="mt-5 font-display text-[44px] leading-[1.03] text-foreground text-balance sm:text-[56px] lg:text-[64px]">
+            A calm operating system for your clinic
+          </h1>
+          <p className="mt-5 max-w-xl text-[16px] leading-relaxed text-muted-foreground sm:text-[17px]">
+            Run the daily queue, remember every patient, capture handwritten
+            prescriptions, and follow up on WhatsApp — all from one phone.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link
+              href="/signup"
+              className="flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-[15px] font-semibold text-white shadow-float transition-all hover:brightness-110 active:scale-[0.98]"
+            >
+              Start free
+              <ArrowRight className="h-4 w-4" strokeWidth={2.4} />
+            </Link>
+            <a
+              href="#features"
+              className="flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 text-[15px] font-semibold text-foreground/80 transition-colors hover:bg-muted"
+            >
+              See how it works
+            </a>
+          </div>
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[12.5px] text-muted-foreground">
+            {["Free during beta", "Works on any Android", "Ready in 2 minutes"].map(
+              (t) => (
+                <span key={t} className="inline-flex items-center gap-1.5">
+                  <Check className="h-3.5 w-3.5 text-success" strokeWidth={2.6} />
+                  {t}
+                </span>
+              ),
+            )}
+          </div>
         </div>
 
-        <div className="mt-6 flex animate-slide-up flex-wrap items-center gap-x-5 gap-y-1.5 text-[12.5px] text-white/80 [animation-delay:270ms] [animation-fill-mode:backwards] motion-reduce:animate-none">
-          {["Free during beta", "Works on any Android", "Ready in 2 minutes"].map(
-            (t) => (
-              <span key={t} className="inline-flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-emerald-300" strokeWidth={2.6} />
-                {t}
-              </span>
-            ),
-          )}
+        {/* Framed photo + floating product chip */}
+        <div className="relative">
+          <div className="overflow-hidden rounded-[28px] border border-border bg-white p-2 shadow-card">
+            <img
+              src={IMG.hero}
+              alt="Doctor talking with a patient during a clinic consultation"
+              className="aspect-[5/4] w-full rounded-[22px] object-cover lg:aspect-[4/5]"
+              loading="eager"
+            />
+          </div>
+          <div className="absolute -bottom-4 -left-4 hidden items-center gap-3 rounded-2xl border border-border bg-white p-3 shadow-float sm:flex">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-success-soft text-success">
+              <Check className="h-4 w-4" strokeWidth={2.6} />
+            </span>
+            <div className="leading-tight">
+              <p className="text-[12.5px] font-semibold">12 patients today</p>
+              <p className="text-[10.5px] text-muted-foreground">3 waiting · 9 done</p>
+            </div>
+          </div>
         </div>
       </div>
-
-      <a
-        href="#features"
-        aria-label="Scroll to features"
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70"
-      >
-        <ChevronDown className="h-6 w-6 animate-bounce" />
-      </a>
     </section>
   );
 }
