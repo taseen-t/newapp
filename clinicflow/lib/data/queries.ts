@@ -334,12 +334,13 @@ export const getPatientProfile = cache(
   async (id: string): Promise<PatientProfile | null> => {
     const supabase = createClient();
 
-    const { data: patient } = await supabase
+    const { data: patient, error } = await supabase
       .from("patients")
       .select("*")
       .eq("id", id)
-      .single();
+      .maybeSingle();
 
+    if (error) console.error("getPatientProfile query failed:", error.message);
     if (!patient) return null;
 
     const { data: visitRows } = await supabase

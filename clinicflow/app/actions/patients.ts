@@ -9,8 +9,11 @@ import { todayKarachi } from "@/lib/data/queries";
 export type AddPatientState = { error?: string };
 
 /**
- * Registers a new patient and opens their first visit for today, then
- * redirects to the active-visit screen. Used with useFormState.
+ * Registers a new patient and adds them to today's waiting queue (a visit
+ * row with status `waiting`), then returns to the dashboard. The doctor
+ * starts the visit explicitly from the queue when the patient is present.
+ * (Add-patient is the receptionist's job; starting a visit is the doctor's.)
+ * Used with useFormState.
  */
 export async function addPatient(
   _prev: AddPatientState,
@@ -86,6 +89,8 @@ export async function addPatient(
     return { error: vErr?.message ?? "Could not start the visit." };
   }
 
+  // Patient is now waiting in today's queue. Back to the dashboard so the
+  // receptionist can add the next patient; the doctor starts the visit later.
   revalidatePath("/");
-  redirect(`/visit/${visit.id}`);
+  redirect("/");
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, Clock3, Sparkles, CheckCircle2 } from "lucide-react";
+import { ChevronRight, Play, CheckCircle2 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import type { QueueEntry } from "@/lib/data/queries";
 import { cn } from "@/lib/utils";
@@ -11,19 +11,16 @@ interface Props {
 const statusConfig = {
   waiting: {
     label: "Waiting",
-    icon: Clock3,
     className: "text-amber-700",
     dot: "bg-amber-500",
   },
   "in-progress": {
     label: "In visit",
-    icon: Sparkles,
     className: "text-primary",
     dot: "bg-primary",
   },
   completed: {
     label: "Done",
-    icon: CheckCircle2,
     className: "text-success",
     dot: "bg-success",
   },
@@ -31,65 +28,94 @@ const statusConfig = {
 
 export function PatientQueueCard({ entry }: Props) {
   const cfg = statusConfig[entry.status];
-  const href =
-    entry.status === "completed"
-      ? `/patient/${entry.patientId}`
-      : `/visit/${entry.visitId}`;
+
+  const meta = [
+    entry.age ? `${entry.age}y` : "",
+    entry.gender === "M" ? "Male" : entry.gender === "F" ? "Female" : "",
+    entry.slot ?? "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
-    <Link
-      href={href}
-      className="group relative flex items-center gap-3.5 rounded-2xl border border-border bg-white py-3.5 pl-3 pr-3.5 transition-colors hover:border-primary/30"
-    >
-      {/* Token */}
-      <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-primary-soft text-primary">
-        <span className="text-[8.5px] font-semibold uppercase leading-none tracking-wider text-primary/60">
-          Token
-        </span>
-        <span className="mt-0.5 text-[16px] font-bold leading-none">
-          {entry.token ?? "—"}
-        </span>
-      </div>
-
-      <Avatar name={entry.name} size="md" />
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center gap-1.5">
-          <span className="truncate text-[14.5px] font-semibold tracking-tight">
-            {entry.name}
+    <div className="group relative flex items-center gap-3 rounded-2xl border border-border bg-white py-2.5 pl-3 pr-2.5 transition-colors hover:border-primary/30">
+      {/* Patient info → opens the profile (does NOT start the visit) */}
+      <Link
+        href={`/patient/${entry.patientId}`}
+        className="flex min-w-0 flex-1 items-center gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+      >
+        {/* Token */}
+        <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-primary-soft text-primary">
+          <span className="text-[8.5px] font-semibold uppercase leading-none tracking-wider text-primary/60">
+            Token
           </span>
-          {entry.isNew && (
-            <span className="rounded-full bg-accent-soft px-1.5 py-0.5 text-[9px] font-semibold uppercase text-accent">
-              New
+          <span className="mt-0.5 text-[16px] font-bold leading-none">
+            {entry.token ?? "—"}
+          </span>
+        </div>
+
+        <Avatar name={entry.name} size="md" />
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex items-center gap-1.5">
+            <span className="truncate text-[14.5px] font-semibold tracking-tight">
+              {entry.name}
+            </span>
+            {entry.isNew && (
+              <span className="rounded-full bg-accent-soft px-1.5 py-0.5 text-[9px] font-semibold uppercase text-accent">
+                New
+              </span>
+            )}
+          </div>
+          {(meta || entry.reason) && (
+            <span className="truncate text-[12px] text-muted-foreground">
+              {meta}
+              {meta && entry.reason ? " · " : ""}
+              {entry.reason}
             </span>
           )}
-        </div>
-        <span className="truncate text-[12px] text-muted-foreground">
-          {entry.age ? `${entry.age}y` : ""}
-          {entry.age && entry.gender ? " · " : ""}
-          {entry.gender === "M" ? "Male" : entry.gender === "F" ? "Female" : ""}
-          {(entry.age || entry.gender) && entry.reason ? " · " : ""}
-          {entry.reason}
-        </span>
-      </div>
-
-      <div className="flex flex-col items-end gap-1.5">
-        {entry.slot && (
-          <span className="num-tabular text-[12px] font-medium text-foreground/80">
-            {entry.slot}
+          <span
+            className={cn(
+              "mt-1 inline-flex items-center gap-1 text-[10.5px] font-medium",
+              cfg.className,
+            )}
+          >
+            <span className={cn("h-1.5 w-1.5 rounded-full", cfg.dot)} />
+            {cfg.label}
           </span>
-        )}
-        <span
-          className={cn(
-            "inline-flex items-center gap-1 text-[10.5px] font-medium",
-            cfg.className,
-          )}
+        </div>
+      </Link>
+
+      {/* Action — explicit and doctor-driven. Starting a visit only happens here. */}
+      {entry.status === "waiting" && (
+        <Link
+          href={`/visit/${entry.visitId}`}
+          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl bg-primary px-3.5 py-2.5 text-[12.5px] font-semibold text-white shadow-soft transition-all hover:brightness-110 active:scale-[0.98]"
         >
-          <span className={cn("h-1.5 w-1.5 rounded-full", cfg.dot)} />
-          {cfg.label}
-        </span>
-      </div>
-      <ChevronRight className="ml-0.5 h-4 w-4 shrink-0 text-muted-foreground/40" />
-    </Link>
+          <Play className="h-3.5 w-3.5" fill="currentColor" strokeWidth={0} />
+          Start visit
+        </Link>
+      )}
+
+      {entry.status === "in-progress" && (
+        <Link
+          href={`/visit/${entry.visitId}`}
+          className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-xl border border-primary/30 bg-primary-soft px-3.5 py-2.5 text-[12.5px] font-semibold text-primary transition-colors hover:bg-primary/10"
+        >
+          Resume
+          <ChevronRight className="h-3.5 w-3.5" />
+        </Link>
+      )}
+
+      {entry.status === "completed" && (
+        <Link
+          href={`/patient/${entry.patientId}`}
+          className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-xl border border-border px-3 py-2.5 text-[12px] font-medium text-muted-foreground transition-colors hover:bg-muted"
+        >
+          <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+          View
+        </Link>
+      )}
+    </div>
   );
 }
