@@ -7,7 +7,7 @@ import { Home, BellRing, Users, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { href: "/", label: "Today", icon: Home },
+  { href: "/dashboard", label: "Today", icon: Home },
   { href: "/follow-ups", label: "Follow-ups", icon: BellRing },
   { href: "/patients", label: "Patients", icon: Users },
   { href: "/add-patient", label: "Add", icon: Plus },
@@ -21,8 +21,8 @@ export function BottomNav() {
       <nav className="pointer-events-auto flex w-full items-center justify-around rounded-full border border-border/70 bg-white/90 px-2 py-2 shadow-card backdrop-blur-md">
         {items.map(({ href, label, icon: Icon }) => {
           const isActive =
-            href === "/"
-              ? pathname === "/"
+            href === "/dashboard"
+              ? pathname === "/dashboard"
               : pathname?.startsWith(href.split("/").slice(0, 2).join("/"));
           return (
             <Link

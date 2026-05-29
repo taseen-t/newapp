@@ -7,6 +7,7 @@ import {
   BellRing,
   Users,
   Settings,
+  Shield,
   Plus,
   Search,
   ChevronsUpDown,
@@ -26,7 +27,7 @@ export function SideNav() {
 
   const clinicGroup = [
     {
-      href: "/",
+      href: "/dashboard",
       label: "Today",
       icon: Home,
       badge: clinic.queueCount > 0 ? String(clinic.queueCount) : undefined,
@@ -45,10 +46,15 @@ export function SideNav() {
     { href: "#", label: "Vitals", icon: Activity },
   ];
 
-  const settingsGroup = [{ href: "#", label: "Configuration", icon: Settings }];
+  const settingsGroup = [
+    { href: "/settings", label: "Settings", icon: Settings },
+    ...(clinic.isAdmin
+      ? [{ href: "/admin", label: "Admin", icon: Shield }]
+      : []),
+  ];
 
   function isActive(href: string) {
-    if (href === "/") return pathname === "/";
+    if (href === "/dashboard") return pathname === "/dashboard";
     const root = href.split("/").slice(0, 2).join("/");
     return pathname?.startsWith(root);
   }

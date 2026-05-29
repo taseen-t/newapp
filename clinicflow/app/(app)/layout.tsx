@@ -33,6 +33,7 @@ export default async function AppLayout({
         initials: initials(doctorName),
         queueCount: counts.queue,
         pendingCount: counts.pending,
+        isAdmin: profile?.is_admin ?? false,
       }}
     >
       {children}

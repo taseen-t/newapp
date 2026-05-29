@@ -91,6 +91,6 @@ export async function addPatient(
 
   // Patient is now waiting in today's queue. Back to the dashboard so the
   // receptionist can add the next patient; the doctor starts the visit later.
-  revalidatePath("/");
-  redirect("/");
+  revalidatePath("/dashboard");
+  redirect("/dashboard");
 }

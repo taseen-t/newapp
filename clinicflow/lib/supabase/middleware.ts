@@ -2,12 +2,20 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/database.types";
 
+// Paths a signed-out visitor is allowed to see. "/" (marketing landing) is
+// handled separately below so it stays public for everyone.
 const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/forgot-password"];
 
+// Auth pages a signed-in user should be bounced away from (→ /dashboard).
+const AUTH_PAGES = ["/login", "/signup", "/forgot-password"];
+
+function matches(pathname: string, prefixes: string[]) {
+  return prefixes.some((p) => pathname === p || pathname.startsWith(p + "/"));
+}
+
+// Public for signed-out visitors: the landing page plus the auth/callback flow.
 function isPublic(pathname: string) {
-  return PUBLIC_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(p + "/"),
-  );
+  return pathname === "/" || matches(pathname, PUBLIC_PREFIXES);
 }
 
 /**
@@ -51,6 +59,7 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // Signed-out visitor hitting a protected page → send to login (remember where).
   if (!user && !isPublic(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -58,9 +67,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && isPublic(pathname)) {
+  // Signed-in user landing on an auth page → straight to the dashboard.
+  // (The marketing landing "/" is intentionally NOT bounced, so a logged-in
+  // user can still view it.)
+  if (user && matches(pathname, AUTH_PAGES)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
+    url.pathname = "/dashboard";
     url.search = "";
     return NextResponse.redirect(url);
   }

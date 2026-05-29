@@ -1,7 +1,7 @@
 import { getDashboard } from "@/lib/data/queries";
-import { HomeClient } from "./HomeClient";
+import { HomeClient } from "../HomeClient";
 
-export default async function HomePage() {
+export default async function DashboardPage() {
   const { clinic, queue, followUps, stats, weekly } = await getDashboard();
   return (
     <HomeClient

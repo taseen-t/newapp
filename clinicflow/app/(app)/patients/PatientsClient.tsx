@@ -51,7 +51,7 @@ export function PatientsClient({ patients }: { patients: PatientListItem[] }) {
       <div className="-mx-10 mb-7 hidden border-b border-border px-10 pb-4 lg:flex lg:items-center lg:justify-between xl:-mx-14 xl:px-14">
         <div className="flex items-center gap-2">
           <Link
-            href="/"
+            href="/dashboard"
             className="text-[12.5px] text-muted-foreground transition-colors hover:text-foreground"
           >
             Dashboard

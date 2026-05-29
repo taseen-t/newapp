@@ -12,7 +12,7 @@ export async function startVisit(visitId: string) {
     .update({ status: "in-progress", started_at: new Date().toISOString() })
     .eq("id", visitId)
     .eq("status", "waiting");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
 }
 
 export type CompleteVisitInput = {
@@ -51,7 +51,7 @@ export async function completeVisit(
     .update({ last_visit_at: new Date().toISOString(), is_new: false })
     .eq("id", visit.patient_id);
 
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   revalidatePath(`/patient/${visit.patient_id}`);
   return { patientId: visit.patient_id };
 }

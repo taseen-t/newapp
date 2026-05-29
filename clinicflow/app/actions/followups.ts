@@ -34,7 +34,7 @@ export async function scheduleFollowUp(
   if (error) return { error: error.message };
 
   revalidatePath("/follow-ups");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   return { due };
 }
 
@@ -51,6 +51,6 @@ export async function markFollowUpDone(
   if (error) return { error: error.message };
 
   revalidatePath("/follow-ups");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   return { ok: true };
 }

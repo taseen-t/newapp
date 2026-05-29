@@ -30,6 +30,7 @@ export interface ProfileRow {
   clinic_id: string | null;
   full_name: string | null;
   role: "doctor" | "staff";
+  is_admin: boolean;
   created_at: string;
 }
 
@@ -104,7 +105,7 @@ export type Database = {
       };
       profiles: {
         Row: ProfileRow;
-        Insert: Insertable<ProfileRow, "clinic_id" | "full_name" | "role" | "created_at">;
+        Insert: Insertable<ProfileRow, "clinic_id" | "full_name" | "role" | "is_admin" | "created_at">;
         Update: Partial<ProfileRow>;
       };
       patients: {
@@ -172,6 +173,10 @@ export type Database = {
           p_open_until?: string | null;
         };
         Returns: ClinicRow;
+      };
+      is_platform_admin: {
+        Args: Record<PropertyKey, never>;
+        Returns: boolean;
       };
     };
     Views: { [_ in never]: never };

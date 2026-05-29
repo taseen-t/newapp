@@ -39,5 +39,5 @@ export async function createClinic(
   if (error) return { error: error.message };
 
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect("/dashboard");
 }

@@ -10,6 +10,8 @@ export type ClinicContextValue = ClinicView & {
   queueCount: number;
   /** Follow-ups due or overdue. */
   pendingCount: number;
+  /** Whether this account is a ClinicFlow platform admin. */
+  isAdmin: boolean;
 };
 
 const ClinicContext = createContext<ClinicContextValue | null>(null);

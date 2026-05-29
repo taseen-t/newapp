@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { Bell } from "lucide-react";
+import { Bell, Settings } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { useClinic } from "@/components/providers/ClinicProvider";
 
@@ -35,16 +36,25 @@ export function Greeting() {
           <span className="text-primary">{doctorName}</span>
         </h1>
       </motion.div>
-      <button
-        aria-label="Notifications"
-        onClick={() =>
-          toast("1 new follow-up overdue — head to the Follow-ups tab.")
-        }
-        className="relative mt-1 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-foreground/70 transition-colors hover:bg-muted"
-      >
-        <Bell className="h-[17px] w-[17px]" strokeWidth={2} />
-        <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-accent" />
-      </button>
+      <div className="mt-1 flex items-center gap-2">
+        <Link
+          href="/settings"
+          aria-label="Settings"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-foreground/70 transition-colors hover:bg-muted"
+        >
+          <Settings className="h-[17px] w-[17px]" strokeWidth={2} />
+        </Link>
+        <button
+          aria-label="Notifications"
+          onClick={() =>
+            toast("1 new follow-up overdue — head to the Follow-ups tab.")
+          }
+          className="relative flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-foreground/70 transition-colors hover:bg-muted"
+        >
+          <Bell className="h-[17px] w-[17px]" strokeWidth={2} />
+          <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-accent" />
+        </button>
+      </div>
     </div>
   );
 }
