@@ -26,6 +26,7 @@ import type {
   QueueEntry,
   FollowUpView,
   DashboardStats,
+  RevenueStats,
 } from "@/lib/data/queries";
 
 interface HomeClientProps {
@@ -33,6 +34,7 @@ interface HomeClientProps {
   followUps: FollowUpView[];
   stats: DashboardStats;
   weekly: number[];
+  revenue: RevenueStats;
   city: string;
 }
 
@@ -41,6 +43,7 @@ export function HomeClient({
   followUps,
   stats,
   weekly,
+  revenue,
   city,
 }: HomeClientProps) {
   const { toast } = useToast();
@@ -73,6 +76,9 @@ export function HomeClient({
         <Greeting />
         <SearchBar value={query} onChange={setQuery} />
         <StatsRow stats={stats} />
+        <div className="mt-4 px-5">
+          <RevenueRow revenue={revenue} />
+        </div>
 
         <div className="mt-7 flex flex-col gap-3">
           <div className="flex items-end justify-between px-6">
@@ -243,6 +249,10 @@ export function HomeClient({
           />
         </div>
 
+        <div className="mt-6">
+          <RevenueRow revenue={revenue} />
+        </div>
+
         {/* Chart + breakdown */}
         <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px]">
           <VisitsChart data={weekly} />
@@ -372,6 +382,34 @@ function EmptyQueue() {
         <CalendarPlus className="h-3.5 w-3.5" strokeWidth={2.4} />
         Add patient
       </Link>
+    </div>
+  );
+}
+
+function RevenueRow({ revenue }: { revenue: RevenueStats }) {
+  const fmt = (n: number) => `Rs ${n.toLocaleString("en-PK")}`;
+  const items = [
+    { label: "Earned today", value: fmt(revenue.today), tone: "text-foreground" },
+    { label: "This month", value: fmt(revenue.month), tone: "text-primary" },
+    {
+      label: "Unpaid today",
+      value: fmt(revenue.unpaidToday),
+      tone:
+        revenue.unpaidToday > 0 ? "text-amber-600" : "text-muted-foreground",
+    },
+  ];
+  return (
+    <div className="grid grid-cols-3 divide-x divide-border overflow-hidden rounded-2xl border border-border bg-white">
+      {items.map((it) => (
+        <div key={it.label} className="px-3 py-3 text-center">
+          <p
+            className={`num-tabular text-[15px] font-bold leading-none sm:text-[17px] ${it.tone}`}
+          >
+            {it.value}
+          </p>
+          <p className="mt-1 text-[10.5px] text-muted-foreground">{it.label}</p>
+        </div>
+      ))}
     </div>
   );
 }

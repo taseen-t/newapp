@@ -41,6 +41,7 @@ const STATUS_LABEL: Record<ActiveVisit["visit"]["status"], string> = {
   waiting: "Waiting",
   "in-progress": "In progress",
   completed: "Completed",
+  cancelled: "Cancelled",
 };
 
 export function VisitClient({ active }: { active: ActiveVisit }) {
@@ -57,6 +58,8 @@ export function VisitClient({ active }: { active: ActiveVisit }) {
   const [rxName, setRxName] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [completing, startCompleting] = useTransition();
+  const [fee, setFee] = useState(visit.fee != null ? String(visit.fee) : "");
+  const [paid, setPaid] = useState(visit.paid);
 
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
@@ -116,10 +119,13 @@ export function VisitClient({ active }: { active: ActiveVisit }) {
 
   function onComplete() {
     startCompleting(async () => {
+      const feeNum = fee.trim() ? Number(fee) : null;
       const res = await completeVisit({
         visitId: visit.id,
         diagnoses: tags,
         notes,
+        fee: feeNum != null && Number.isFinite(feeNum) ? Math.round(feeNum) : null,
+        paid,
       });
       if (res.error || !res.patientId) {
         toast(res.error ?? "Could not complete the visit.", "warning");
@@ -515,7 +521,36 @@ export function VisitClient({ active }: { active: ActiveVisit }) {
         </div>
       </div>
 
-      <div className="sticky bottom-0 border-t border-border/60 bg-white/90 px-5 py-4 backdrop-blur-md lg:static lg:mt-6 lg:flex lg:justify-end lg:border-t-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+      <div className="sticky bottom-0 flex flex-col gap-3 border-t border-border/60 bg-white/90 px-5 py-4 backdrop-blur-md lg:static lg:mt-6 lg:flex-row lg:items-center lg:gap-4 lg:border-t-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+        {/* Consultation fee + paid */}
+        <div className="flex items-center gap-2 lg:mr-auto">
+          <div className="relative">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] font-medium text-muted-foreground">
+              Rs
+            </span>
+            <input
+              inputMode="numeric"
+              value={fee}
+              onChange={(e) => setFee(e.target.value.replace(/[^0-9]/g, ""))}
+              placeholder="Fee"
+              className="num-tabular h-12 w-[110px] rounded-xl border border-border bg-white pl-9 pr-3 text-[14px] focus:border-primary/40 focus:outline-none focus:ring-4 focus:ring-primary/10 lg:h-11"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => setPaid((p) => !p)}
+            className={cn(
+              "flex h-12 shrink-0 items-center gap-1.5 rounded-xl border px-3.5 text-[13px] font-semibold transition-colors lg:h-11",
+              paid
+                ? "border-success/30 bg-success-soft text-success"
+                : "border-border bg-white text-muted-foreground hover:bg-muted",
+            )}
+          >
+            <Check className="h-3.5 w-3.5" strokeWidth={2.6} />
+            {paid ? "Paid" : "Mark paid"}
+          </button>
+        </div>
+
         <motion.button
           whileTap={{ scale: completing ? 1 : 0.98 }}
           onClick={onComplete}

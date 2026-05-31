@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import {
   MessageCircle,
@@ -12,6 +13,7 @@ import {
   ChevronRight,
   Sparkles,
   Loader2,
+  Pencil,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { TopBar } from "@/components/layout/TopBar";
@@ -25,6 +27,8 @@ import { openExternal, telUrl, whatsappUrl } from "@/lib/contact";
 import { relativeDay } from "@/lib/utils";
 import type { PatientProfile } from "@/lib/data/queries";
 import { scheduleFollowUp } from "@/app/actions/followups";
+import { markVisitPaid } from "@/app/actions/visits";
+import { EditPatientModal } from "./EditPatientModal";
 
 function genderLabel(gender: PatientProfile["gender"]): string {
   return gender === "M" ? "Male" : gender === "F" ? "Female" : "";
@@ -33,7 +37,10 @@ function genderLabel(gender: PatientProfile["gender"]): string {
 export function PatientClient({ patient }: { patient: PatientProfile }) {
   const { toast } = useToast();
   const clinic = useClinic();
+  const router = useRouter();
   const [scheduling, startScheduling] = useTransition();
+  const [paying, startPaying] = useTransition();
+  const [editing, setEditing] = useState(false);
 
   const { visits, diagnoses } = patient;
   const ageGender = [
@@ -80,6 +87,18 @@ export function PatientClient({ patient }: { patient: PatientProfile }) {
         month: "long",
       });
       toast(`Follow-up set for ${patient.name} on ${when}.`, "success");
+    });
+  }
+
+  function onMarkPaid(visitId: string) {
+    startPaying(async () => {
+      const res = await markVisitPaid(visitId);
+      if (res.error) {
+        toast(res.error, "warning");
+        return;
+      }
+      toast("Marked as paid.", "success");
+      router.refresh();
     });
   }
 
@@ -132,6 +151,14 @@ export function PatientClient({ patient }: { patient: PatientProfile }) {
           transition={{ duration: 0.35 }}
           className="relative overflow-hidden rounded-3xl border border-border bg-gradient-hero p-6 lg:sticky lg:top-6"
         >
+          <button
+            onClick={() => setEditing(true)}
+            aria-label="Edit patient"
+            title="Edit patient"
+            className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-foreground/60 shadow-soft transition-colors hover:text-primary"
+          >
+            <Pencil className="h-3.5 w-3.5" strokeWidth={2.2} />
+          </button>
           <div className="flex flex-col items-start gap-4 lg:items-center lg:text-center">
             <Avatar
               name={patient.name}
@@ -339,6 +366,29 @@ export function PatientClient({ patient }: { patient: PatientProfile }) {
                               </span>
                             </div>
                           )}
+                          {v.fee != null && (
+                            <div className="mt-2.5 flex items-center justify-between border-t border-border/50 pt-2">
+                              <span className="text-[11.5px] text-muted-foreground">
+                                Fee{" "}
+                                <span className="num-tabular font-semibold text-foreground/80">
+                                  Rs {v.fee.toLocaleString("en-PK")}
+                                </span>
+                              </span>
+                              {v.paid ? (
+                                <span className="rounded-md bg-success-soft px-1.5 py-0.5 text-[10px] font-semibold text-success">
+                                  Paid
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => onMarkPaid(v.id)}
+                                  disabled={paying}
+                                  className="rounded-md bg-amber-50 px-2 py-0.5 text-[10.5px] font-semibold text-amber-700 transition-colors hover:bg-amber-100 disabled:opacity-60"
+                                >
+                                  Mark paid
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </motion.div>
                     );
@@ -359,6 +409,10 @@ export function PatientClient({ patient }: { patient: PatientProfile }) {
           </section>
         </div>
       </div>
+
+      {editing && (
+        <EditPatientModal patient={patient} onClose={() => setEditing(false)} />
+      )}
 
       <BottomNav />
     </AppShell>

@@ -1,6 +1,12 @@
+"use client";
+
 import Link from "next/link";
-import { ChevronRight, Play, CheckCircle2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { ChevronRight, Play, CheckCircle2, X } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
+import { useToast } from "@/components/ui/toast";
+import { cancelVisit } from "@/app/actions/visits";
 import type { QueueEntry } from "@/lib/data/queries";
 import { cn } from "@/lib/utils";
 
@@ -24,10 +30,18 @@ const statusConfig = {
     className: "text-success",
     dot: "bg-success",
   },
+  cancelled: {
+    label: "Cancelled",
+    className: "text-muted-foreground",
+    dot: "bg-muted-foreground",
+  },
 } as const;
 
 export function PatientQueueCard({ entry }: Props) {
   const cfg = statusConfig[entry.status];
+  const router = useRouter();
+  const { toast } = useToast();
+  const [busy, startCancel] = useTransition();
 
   const meta = [
     entry.age ? `${entry.age}y` : "",
@@ -37,14 +51,46 @@ export function PatientQueueCard({ entry }: Props) {
     .filter(Boolean)
     .join(" · ");
 
+  const canCancel =
+    entry.status === "waiting" || entry.status === "in-progress";
+
+  function onCancel() {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(`Remove ${entry.name} from today's queue?`)
+    ) {
+      return;
+    }
+    startCancel(async () => {
+      const res = await cancelVisit(entry.visitId);
+      if (res.error) {
+        toast(res.error, "warning");
+      } else {
+        toast(`${entry.name} removed from the queue.`, "info");
+        router.refresh();
+      }
+    });
+  }
+
   return (
     <div className="group relative flex items-center gap-3 rounded-2xl border border-border bg-white py-2.5 pl-3 pr-2.5 transition-colors hover:border-primary/30">
+      {canCancel && (
+        <button
+          onClick={onCancel}
+          disabled={busy}
+          aria-label="Remove from queue"
+          title="Remove from queue (no-show)"
+          className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground/40 opacity-0 transition-all hover:bg-danger-soft hover:text-danger focus-visible:opacity-100 group-hover:opacity-100 disabled:opacity-40"
+        >
+          <X className="h-3.5 w-3.5" strokeWidth={2.4} />
+        </button>
+      )}
+
       {/* Patient info → opens the profile (does NOT start the visit) */}
       <Link
         href={`/patient/${entry.patientId}`}
         className="flex min-w-0 flex-1 items-center gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
       >
-        {/* Token */}
         <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-primary-soft text-primary">
           <span className="text-[8.5px] font-semibold uppercase leading-none tracking-wider text-primary/60">
             Token

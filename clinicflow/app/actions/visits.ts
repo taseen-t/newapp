@@ -19,6 +19,8 @@ export type CompleteVisitInput = {
   visitId: string;
   diagnoses: string[];
   notes: string;
+  fee?: number | null;
+  paid?: boolean;
 };
 
 export type CompleteVisitResult = { patientId?: string; error?: string };
@@ -51,9 +53,54 @@ export async function completeVisit(
     .update({ last_visit_at: new Date().toISOString(), is_new: false })
     .eq("id", visit.patient_id);
 
+  // Billing (new columns) — best effort so visit completion still works
+  // before the features migration is applied.
+  const billing: { fee?: number | null; paid?: boolean } = {};
+  if (input.fee !== undefined) billing.fee = input.fee;
+  if (input.paid !== undefined) billing.paid = input.paid;
+  if (Object.keys(billing).length > 0) {
+    const { error: bErr } = await supabase
+      .from("visits")
+      .update(billing)
+      .eq("id", visitId);
+    if (bErr) console.error("completeVisit billing skipped:", bErr.message);
+  }
+
   revalidatePath("/dashboard");
   revalidatePath(`/patient/${visit.patient_id}`);
   return { patientId: visit.patient_id };
+}
+
+/** Mark a single visit's consultation fee as paid (best effort). */
+export async function markVisitPaid(
+  visitId: string,
+): Promise<{ ok?: boolean; error?: string }> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("visits")
+    .update({ paid: true })
+    .eq("id", visitId)
+    .select("patient_id")
+    .single();
+  if (error) return { error: error.message };
+  if (data?.patient_id) revalidatePath(`/patient/${data.patient_id}`);
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+/** Remove a patient from today's queue (no-show / cancelled). */
+export async function cancelVisit(
+  visitId: string,
+): Promise<{ ok?: boolean; error?: string }> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("visits")
+    .update({ status: "cancelled" })
+    .eq("id", visitId)
+    .neq("status", "completed");
+  if (error) return { error: error.message };
+  revalidatePath("/dashboard");
+  return { ok: true };
 }
 
 export type UploadResult = { path?: string; error?: string };

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Home,
+  CalendarDays,
   BellRing,
   Users,
   Settings,
@@ -31,6 +32,11 @@ export function SideNav() {
       label: "Today",
       icon: Home,
       badge: clinic.queueCount > 0 ? String(clinic.queueCount) : undefined,
+    },
+    {
+      href: "/appointments",
+      label: "Appointments",
+      icon: CalendarDays,
     },
     {
       href: "/follow-ups",

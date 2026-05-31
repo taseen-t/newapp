@@ -7,6 +7,7 @@ import type {
   PatientRow,
   VisitRow,
   GenderDb,
+  AppointmentStatusDb,
 } from "@/lib/database.types";
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -14,7 +15,11 @@ import type {
 // ─────────────────────────────────────────────────────────────────────────
 
 export type Gender = GenderDb;
-export type VisitStatus = "waiting" | "in-progress" | "completed";
+export type VisitStatus =
+  | "waiting"
+  | "in-progress"
+  | "completed"
+  | "cancelled";
 
 /** A patient's clinic-facing view of their clinic. */
 export type ClinicView = {
@@ -63,6 +68,8 @@ export type VisitView = {
   notes: string | null;
   hasPrescription: boolean;
   prescriptionPath: string | null;
+  fee: number | null;
+  paid: boolean;
 };
 
 /** Everything the patient profile screen needs. */
@@ -157,6 +164,7 @@ export const getTodayQueue = cache(async (): Promise<QueueEntry[]> => {
     .from("visits")
     .select("*")
     .eq("visit_date", today)
+    .neq("status", "cancelled")
     .order("token", { ascending: true });
 
   if (!visits || visits.length === 0) return [];
@@ -291,7 +299,8 @@ export const getNavCounts = cache(
         .from("visits")
         .select("id", { count: "exact", head: true })
         .eq("visit_date", today)
-        .neq("status", "completed"),
+        .neq("status", "completed")
+        .neq("status", "cancelled"),
       supabase
         .from("follow_ups")
         .select("id", { count: "exact", head: true })
@@ -319,14 +328,60 @@ function computeStats(
 }
 
 /** Aggregate everything the home dashboard needs in one call. */
+export type RevenueStats = {
+  today: number;
+  month: number;
+  unpaidToday: number;
+};
+
+/**
+ * Consultation revenue. Tolerant of the pre-billing schema: if the fee/paid
+ * columns don't exist yet (migration not run), returns zeros instead of failing.
+ */
+export const getRevenue = cache(async (): Promise<RevenueStats> => {
+  const supabase = createClient();
+  const today = todayKarachi();
+  const monthStart = `${today.slice(0, 7)}-01`;
+
+  const { data, error } = await supabase
+    .from("visits")
+    .select("visit_date, status, fee, paid")
+    .gte("visit_date", monthStart)
+    .neq("status", "cancelled");
+
+  if (error || !data) return { today: 0, month: 0, unpaidToday: 0 };
+
+  let todayRev = 0;
+  let monthRev = 0;
+  let unpaidToday = 0;
+  for (const v of data) {
+    const fee = v.fee ?? 0;
+    if (v.paid) {
+      monthRev += fee;
+      if (v.visit_date === today) todayRev += fee;
+    } else if (v.visit_date === today && v.status === "completed") {
+      unpaidToday += fee;
+    }
+  }
+  return { today: todayRev, month: monthRev, unpaidToday };
+});
+
 export async function getDashboard() {
-  const [clinic, queue, followUps, weekly] = await Promise.all([
+  const [clinic, queue, followUps, weekly, revenue] = await Promise.all([
     getClinicView(),
     getTodayQueue(),
     getFollowUps(),
     getWeeklyVisits(),
+    getRevenue(),
   ]);
-  return { clinic, queue, followUps, weekly, stats: computeStats(queue, followUps) };
+  return {
+    clinic,
+    queue,
+    followUps,
+    weekly,
+    revenue,
+    stats: computeStats(queue, followUps),
+  };
 }
 
 /** A single patient with full visit history. Returns null if not found. */
@@ -357,6 +412,8 @@ export const getPatientProfile = cache(
       notes: v.notes,
       hasPrescription: Boolean(v.prescription_path),
       prescriptionPath: v.prescription_path,
+      fee: v.fee ?? null,
+      paid: v.paid ?? false,
     }));
 
     const diagnoses = Array.from(
@@ -387,6 +444,8 @@ export type ActiveVisit = {
     diagnoses: string[];
     notes: string | null;
     hasPrescription: boolean;
+    fee: number | null;
+    paid: boolean;
   };
   patient: {
     id: string;
@@ -434,6 +493,8 @@ export const getActiveVisit = cache(
         diagnoses: visit.diagnoses ?? [],
         notes: visit.notes,
         hasPrescription: Boolean(visit.prescription_path),
+        fee: visit.fee ?? null,
+        paid: visit.paid ?? false,
       },
       patient: {
         id: patient.id,
@@ -445,5 +506,50 @@ export const getActiveVisit = cache(
       visitNumber: count ?? 1,
       lastVisitAt: patient.last_visit_at,
     };
+  },
+);
+
+// ─────────────────────────────────────────────────────────────────────────
+// Appointments
+// ─────────────────────────────────────────────────────────────────────────
+
+export type AppointmentView = {
+  id: string;
+  patientId: string | null;
+  name: string;
+  phone: string | null;
+  date: string; // YYYY-MM-DD
+  time: string | null;
+  reason: string | null;
+  status: AppointmentStatusDb;
+};
+
+/**
+ * Upcoming appointments (today onward), soonest first. Tolerant of the
+ * pre-appointments schema: returns [] if the table doesn't exist yet.
+ */
+export const getUpcomingAppointments = cache(
+  async (): Promise<AppointmentView[]> => {
+    const supabase = createClient();
+    const today = todayKarachi();
+    const { data, error } = await supabase
+      .from("appointments")
+      .select("*")
+      .gte("appt_date", today)
+      .neq("status", "cancelled")
+      .order("appt_date", { ascending: true })
+      .order("appt_time", { ascending: true, nullsFirst: true });
+
+    if (error || !data) return [];
+    return data.map((a) => ({
+      id: a.id,
+      patientId: a.patient_id,
+      name: a.name,
+      phone: a.phone,
+      date: a.appt_date,
+      time: a.appt_time,
+      reason: a.reason,
+      status: a.status,
+    }));
   },
 );

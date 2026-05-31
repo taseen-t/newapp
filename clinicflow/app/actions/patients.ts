@@ -94,3 +94,41 @@ export async function addPatient(
   revalidatePath("/dashboard");
   redirect("/dashboard");
 }
+
+export type UpdatePatientState = { error?: string; ok?: boolean };
+
+/** Edit an existing patient's details. RLS scopes the update to the clinic. */
+export async function updatePatient(
+  _prev: UpdatePatientState,
+  formData: FormData,
+): Promise<UpdatePatientState> {
+  const id = String(formData.get("patientId") ?? "").trim();
+  const name = String(formData.get("name") ?? "").trim();
+  const phone = String(formData.get("phone") ?? "").trim();
+  const ageRaw = String(formData.get("age") ?? "").trim();
+  const genderRaw = String(formData.get("gender") ?? "").trim();
+  const reason = String(formData.get("reason") ?? "").trim();
+
+  if (!id) return { error: "Missing patient." };
+  if (name.length < 2) return { error: "Enter the patient's full name." };
+  if (phone.replace(/\D+/g, "").length < 7) {
+    return { error: "Enter a valid phone number." };
+  }
+
+  const ageNum = ageRaw ? Number(ageRaw) : null;
+  const age = ageNum != null && Number.isFinite(ageNum) ? ageNum : null;
+  const gender = genderRaw === "M" || genderRaw === "F" ? genderRaw : null;
+
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("patients")
+    .update({ name, phone, age, gender, reason: reason || null })
+    .eq("id", id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/patient/${id}`);
+  revalidatePath("/patients");
+  revalidatePath("/dashboard");
+  return { ok: true };
+}

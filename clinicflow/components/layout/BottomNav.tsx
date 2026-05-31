@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Home, BellRing, Users, Plus } from "lucide-react";
+import { Home, CalendarDays, BellRing, Users, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/dashboard", label: "Today", icon: Home },
+  { href: "/appointments", label: "Appts", icon: CalendarDays },
   { href: "/follow-ups", label: "Follow-ups", icon: BellRing },
   { href: "/patients", label: "Patients", icon: Users },
   { href: "/add-patient", label: "Add", icon: Plus },

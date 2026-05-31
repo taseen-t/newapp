@@ -6,7 +6,16 @@ export type SubscriptionStatus =
   | "active"
   | "past_due"
   | "canceled";
-export type VisitStatusDb = "waiting" | "in-progress" | "completed";
+export type VisitStatusDb =
+  | "waiting"
+  | "in-progress"
+  | "completed"
+  | "cancelled";
+export type AppointmentStatusDb =
+  | "scheduled"
+  | "arrived"
+  | "done"
+  | "cancelled";
 export type FollowUpStatusDb = "scheduled" | "due" | "missed" | "done";
 export type GenderDb = "M" | "F";
 
@@ -18,6 +27,7 @@ export interface ClinicRow {
   doctor_title: string | null;
   phone: string | null;
   open_until: string | null;
+  default_fee: number | null;
   plan: string;
   subscription_status: SubscriptionStatus;
   trial_ends_at: string;
@@ -60,6 +70,8 @@ export interface VisitRow {
   diagnoses: string[];
   notes: string | null;
   prescription_path: string | null;
+  fee: number | null;
+  paid: boolean;
   started_at: string | null;
   completed_at: string | null;
   created_at: string;
@@ -75,6 +87,21 @@ export interface FollowUpRow {
   tag: string | null;
   note: string | null;
   status: FollowUpStatusDb;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AppointmentRow {
+  id: string;
+  clinic_id: string;
+  patient_id: string | null;
+  name: string;
+  phone: string | null;
+  appt_date: string;
+  appt_time: string | null;
+  reason: string | null;
+  status: AppointmentStatusDb;
+  visit_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -95,6 +122,7 @@ export type Database = {
           | "doctor_title"
           | "phone"
           | "open_until"
+          | "default_fee"
           | "plan"
           | "subscription_status"
           | "trial_ends_at"
@@ -136,6 +164,8 @@ export type Database = {
           | "diagnoses"
           | "notes"
           | "prescription_path"
+          | "fee"
+          | "paid"
           | "started_at"
           | "completed_at"
           | "created_at"
@@ -156,6 +186,22 @@ export type Database = {
           | "updated_at"
         >;
         Update: Partial<FollowUpRow>;
+      };
+      appointments: {
+        Row: AppointmentRow;
+        Insert: Insertable<
+          AppointmentRow,
+          | "id"
+          | "patient_id"
+          | "phone"
+          | "appt_time"
+          | "reason"
+          | "status"
+          | "visit_id"
+          | "created_at"
+          | "updated_at"
+        >;
+        Update: Partial<AppointmentRow>;
       };
     };
     Functions: {
